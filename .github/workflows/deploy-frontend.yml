@@ -1,0 +1,75 @@
+# .github/workflows/deploy-frontend.yml — Frontend Vite (futuro CRM) → VPS /srv/infra/inmobitwo/frontend-inmobitwo
+name: Deploy Frontend Inmobitwo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: SSH Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -e
+
+            echo "🚀 Despliegue Frontend Vite (CRM) → app.inmobitwo.seventwo.tech"
+
+            # 0. Asegurar repo en /srv/infra/inmobitwo/frontend-inmobitwo
+            if [ ! -d /srv/infra/inmobitwo/frontend-inmobitwo/.git ]; then
+              echo "→ Clonando repo por primera vez..."
+              mkdir -p /srv/infra/inmobitwo
+              git clone ${{ github.server_url }}/${{ github.repository }}.git /srv/infra/inmobitwo/frontend-inmobitwo
+            fi
+            cd /srv/infra/inmobitwo/frontend-inmobitwo
+
+            echo "→ Preservando .env.production..."
+            cp .env.production /tmp/inmobitwo-frontend.env.bak 2>/dev/null || true
+
+            echo "→ Actualizando código..."
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd -e .env.production
+
+            cp /tmp/inmobitwo-frontend.env.bak .env.production 2>/dev/null || true
+            rm -f /tmp/inmobitwo-frontend.env.bak
+
+            if [ ! -f .env.production ]; then
+              echo "❌ Falta .env.production — créalo desde .env.production.example en el VPS y vuelve a deployar"
+              exit 1
+            fi
+
+            echo "→ Instalando dependencias..."
+            npm ci
+
+            echo "→ Construyendo aplicación..."
+            npm run build
+
+            echo "→ Verificando build..."
+            ls dist/index.html
+            ls -la dist/assets/ | head -5
+
+            echo "→ SSL (certbot, certificado independiente)..."
+            if [ ! -f /etc/letsencrypt/live/app.inmobitwo.seventwo.tech/fullchain.pem ]; then
+              echo "→ Certificado no existe — generándolo con plugin nginx (cero downtime)..."
+              sudo certbot certonly --nginx -d app.inmobitwo.seventwo.tech --non-interactive --agree-tos -m admin@seventwo.tech
+            else
+              echo "→ Certificado ya existe — renovando si es necesario..."
+              sudo certbot renew --quiet
+            fi
+
+            echo "→ Nginx (app.inmobitwo.seventwo.tech)..."
+            sudo cp nginx/app-inmobitwo.conf /etc/nginx/sites-available/app-inmobitwo
+            sudo ln -sf ../sites-available/app-inmobitwo /etc/nginx/sites-enabled/app-inmobitwo
+            sudo nginx -t && sudo systemctl reload nginx
+
+            echo "→ Estado..."
+            curl -sf https://app.inmobitwo.seventwo.tech/ || echo "⚠️ el frontend no responde aún (revisa: sudo nginx -t y ls /srv/infra/inmobitwo/frontend-inmobitwo/dist)"
+            echo "✅ Deploy Frontend OK"

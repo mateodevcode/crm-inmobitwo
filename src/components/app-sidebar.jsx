@@ -1,0 +1,128 @@
+// src/components/app-sidebar.jsx — sidebar del CRM
+import { useContext } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { WorkspaceContext } from "@/context/WorkspaceContext.js";
+import { PORTAL_URL } from "@/config/config.js";
+import { apiBackend } from "@/api/apiBackend.js";
+import { NavMain } from "@/components/nav-main.jsx";
+import { NavUser } from "@/components/nav-user.jsx";
+import { WorkspaceSwitcher } from "@/components/workspace-switcher.jsx";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar.jsx";
+import {
+  LayoutDashboardIcon,
+  UsersIcon,
+  ContactRoundIcon,  KanbanIcon,
+  ListChecksIcon,
+  Building2Icon,
+  UsersRoundIcon,
+  ChartBarIcon,
+  Settings2Icon,
+  GlobeIcon,
+  MessagesSquareIcon,
+} from "lucide-react";
+
+const NAV_PRINCIPAL = [
+  { title: "Panel", url: "/", icon: LayoutDashboardIcon },
+  { title: "Leads", url: "/leads", icon: UsersIcon },
+  { title: "Contactos", url: "/contactos", icon: ContactRoundIcon },
+  { title: "Pipeline", url: "/pipeline", icon: KanbanIcon },
+  { title: "Tareas", url: "/tareas", icon: ListChecksIcon },
+  { title: "Propiedades", url: "/propiedades", icon: Building2Icon },
+  { title: "Reportes", url: "/reportes", icon: ChartBarIcon },
+  { title: "Ajustes", url: "/ajustes", icon: Settings2Icon },
+];
+
+export function AppSidebar(props) {
+  const { puedeAdministrar, esPersonal } = useContext(WorkspaceContext);
+  const { data: noLeidos } = useQuery({
+    queryKey: ["chat-no-leidos"],
+    queryFn: async () => {
+      const res = await apiBackend("/chat/no-leidos");
+      return res.success ? Number(res.data?.total ?? 0) : 0;
+    },
+    refetchInterval: 60_000,
+  });
+
+  const principal = [...NAV_PRINCIPAL];
+  if (!esPersonal && puedeAdministrar) {
+    principal.splice(6, 0, {
+      title: "Equipo",
+      url: "/equipo",
+      icon: UsersRoundIcon,
+    });
+  }
+
+  return (
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <span className="px-2 text-base font-semibold">CRM inmobitwo</span>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <WorkspaceSwitcher />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={principal} label="CRM" />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-1">
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  tooltip="Ir al portal"
+                  data-active={undefined}
+                >
+                  <a
+                    href={PORTAL_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <GlobeIcon />
+                    <span>Ir al portal</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  tooltip="Mensajes"
+                  data-active={undefined}
+                >
+                  <a
+                    href={`${PORTAL_URL}/usuario/chat`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <MessagesSquareIcon />
+                    <span>Mensajes</span>
+                    {noLeidos > 0 ? (
+                      <span className="bg-primary text-primary-foreground ml-auto rounded-full px-2 text-xs">
+                        {noLeidos}
+                      </span>
+                    ) : null}
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+    </Sidebar>
+  );
+}

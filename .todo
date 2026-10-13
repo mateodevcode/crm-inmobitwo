@@ -1,0 +1,5 @@
+## Pendientes baja prioridad
+
+- #3 — JWT en localStorage: configurar CSP headers o acortar TTL del access token en backend (~10-15 min)
+- #8 — Race condition carga inicial Home: posible leak de setState en componente desmontado (bajo impacto)
+- #18 — Lazy loading de páginas con React.lazy + Suspense para reducir bundle inicial

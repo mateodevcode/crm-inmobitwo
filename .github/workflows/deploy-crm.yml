@@ -1,0 +1,75 @@
+# .github/workflows/deploy-crm.yml — CRM Vite → VPS /srv/infra/inmobitwo/crm-inmobitwo
+name: Deploy CRM Inmobitwo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: SSH Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -e
+
+            echo "🚀 Despliegue CRM Vite → crm.inmobitwo.seventwo.tech"
+
+            # 0. Asegurar repo en /srv/infra/inmobitwo/crm-inmobitwo
+            if [ ! -d /srv/infra/inmobitwo/crm-inmobitwo/.git ]; then
+              echo "→ Clonando repo por primera vez..."
+              mkdir -p /srv/infra/inmobitwo
+              git clone ${{ github.server_url }}/${{ github.repository }}.git /srv/infra/inmobitwo/crm-inmobitwo
+            fi
+            cd /srv/infra/inmobitwo/crm-inmobitwo
+
+            echo "→ Preservando .env.production..."
+            cp .env.production /tmp/inmobitwo-crm.env.bak 2>/dev/null || true
+
+            echo "→ Actualizando código..."
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd -e .env.production
+
+            cp /tmp/inmobitwo-crm.env.bak .env.production 2>/dev/null || true
+            rm -f /tmp/inmobitwo-crm.env.bak
+
+            if [ ! -f .env.production ]; then
+              echo "❌ Falta .env.production — créalo desde .env.example en el VPS y vuelve a deployar"
+              exit 1
+            fi
+
+            echo "→ Instalando dependencias..."
+            npm ci
+
+            echo "→ Construyendo aplicación..."
+            npm run build
+
+            echo "→ Verificando build..."
+            ls dist/index.html
+            ls -la dist/assets/ | head -5
+
+            echo "→ SSL (certbot, certificado independiente)..."
+            if [ ! -f /etc/letsencrypt/live/crm.inmobitwo.seventwo.tech/fullchain.pem ]; then
+              echo "→ Certificado no existe — generándolo con plugin nginx (cero downtime)..."
+              sudo certbot certonly --nginx -d crm.inmobitwo.seventwo.tech --non-interactive --agree-tos -m admin@seventwo.tech
+            else
+              echo "→ Certificado ya existe — renovando si es necesario..."
+              sudo certbot renew --quiet
+            fi
+
+            echo "→ Nginx (crm.inmobitwo.seventwo.tech)..."
+            sudo cp nginx/crm-inmobitwo.conf /etc/nginx/sites-available/crm-inmobitwo
+            sudo ln -sf ../sites-available/crm-inmobitwo /etc/nginx/sites-enabled/crm-inmobitwo
+            sudo nginx -t && sudo systemctl reload nginx
+
+            echo "→ Estado..."
+            curl -sf https://crm.inmobitwo.seventwo.tech/ || echo "⚠️ el CRM no responde aún (revisa: sudo nginx -t y ls /srv/infra/inmobitwo/crm-inmobitwo/dist)"
+            echo "✅ Deploy CRM OK"

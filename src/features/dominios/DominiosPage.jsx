@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/comunes/PageHeader.jsx";
@@ -60,6 +60,15 @@ export default function DominiosPage() {
   const solQ = useQuery({ queryKey: ["dominios-solicitudes"], queryFn: obtenerSolicitudes });
   const jobsQ = useQuery({ queryKey: ["dominios-jobs"], queryFn: () => obtenerJobs(20) });
   const jobQ = useJobEnVivo(jobId);
+
+  // Al terminar la ejecución en vivo, refrescar historial y solicitudes.
+  const estadoVivo = jobQ.data?.estado;
+  useEffect(() => {
+    if (estadoVivo === "ok" || estadoVivo === "fallo") {
+      queryClient.invalidateQueries({ queryKey: ["dominios-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["dominios-solicitudes"] });
+    }
+  }, [estadoVivo, queryClient]);
 
   const refrescar = () => {
     queryClient.invalidateQueries({ queryKey: ["dominios-solicitudes"] });

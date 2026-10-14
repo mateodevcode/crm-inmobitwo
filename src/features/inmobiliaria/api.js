@@ -31,3 +31,16 @@ export async function solicitarDominio(orgId, customDomain) {
   if (!res.success) throw new Error(res.error || "No se pudo solicitar el dominio.");
   return res.data;
 }
+
+export async function darDeBajaOrganizacion(orgId) {
+  const res = await apiBackend(`/organizaciones/${orgId}/baja`, "DELETE");
+  if (!res.success) {
+    const pendientes = res.data;
+    const detalle =
+      pendientes && (pendientes.agentes > 0 || pendientes.inmuebles > 0)
+        ? ` Pendientes: ${pendientes.agentes} agentes, ${pendientes.inmuebles} inmuebles.`
+        : "";
+    throw new Error(`${res.error || "No se pudo dar de baja."}${detalle}`);
+  }
+  return res.data;
+}

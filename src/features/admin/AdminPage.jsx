@@ -19,11 +19,11 @@ import {
   aprobarOrganizacion,
   crearOrganizacion,
   desactivarDominio,
-  eliminarOrganizacion,
   obtenerOrganizaciones,
   quitarDominio,
   suspenderOrganizacion,
 } from "@/features/admin/api.js";
+import { darDeBajaOrganizacion } from "@/features/inmobiliaria/api.js";
 
 const FILTROS = ["pendiente", "aprobada", "suspendida", "todas"];
 const VACIO = {
@@ -97,7 +97,8 @@ export default function AdminPage() {
   const mActivar = useAccion(activarDominio, "Dominio activado.");
   const mDesactivar = useAccion(desactivarDominio, "Dominio pausado.");
   const mQuitar = useAccion(quitarDominio, "Dominio eliminado.");
-  const mEliminar = useAccion(eliminarOrganizacion, "Inmobiliaria eliminada.");
+  // Baja con candados (0 agentes, 0 inmuebles): si hay pendientes avisa.
+  const mEliminar = useAccion(darDeBajaOrganizacion, "Inmobiliaria dada de baja.");
   const mCrear = useMutation({
     mutationFn: () => crearOrganizacion({ ...nueva, creada_por_id: usuario.id }),
     onSuccess: () => {

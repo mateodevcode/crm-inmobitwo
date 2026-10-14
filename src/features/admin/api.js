@@ -21,12 +21,6 @@ export async function actualizarOrganizacion(id, datos) {
   return res.data;
 }
 
-export async function eliminarOrganizacion(id) {
-  const res = await apiBackend(`/organizaciones/${id}`, "DELETE");
-  if (!res.success) throw new Error(res.error || "No se pudo eliminar la inmobiliaria.");
-  return res.data;
-}
-
 export async function aprobarOrganizacion(id) {
   const res = await apiBackend(`/organizaciones/${id}/aprobar`, "PATCH");
   if (!res.success) throw new Error(res.error || "No se pudo aprobar.");

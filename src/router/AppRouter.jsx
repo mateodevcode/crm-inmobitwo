@@ -9,6 +9,7 @@ import PortadaPage from "@/features/portada/PortadaPage.jsx";
 import AdminPage from "@/features/admin/AdminPage.jsx";
 import DominiosPage from "@/features/dominios/DominiosPage.jsx";
 import UsuariosPage from "@/features/usuarios/UsuariosPage.jsx";
+import InmobiliariasPage from "@/features/inmobiliaria/InmobiliariasPage.jsx";
 import InmobiliariaPage from "@/features/inmobiliaria/InmobiliariaPage.jsx";
 import LeadsPage from "@/features/leads/LeadsPage.jsx";
 import ContactosPage from "@/features/contactos/ContactosPage.jsx";
@@ -69,6 +70,14 @@ export default function AppRouter() {
             element={
               <RutaSuperadmin>
                 <UsuariosPage />
+              </RutaSuperadmin>
+            }
+          />
+          <Route
+            path="inmobiliarias"
+            element={
+              <RutaSuperadmin>
+                <InmobiliariasPage />
               </RutaSuperadmin>
             }
           />

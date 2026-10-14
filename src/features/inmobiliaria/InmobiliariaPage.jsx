@@ -6,6 +6,7 @@ import { AuthContext } from "@/context/AuthContext.js";
 import { WorkspaceContext } from "@/context/WorkspaceContext.js";
 import { PageHeader } from "@/components/comunes/PageHeader.jsx";
 import { EstadoBadge } from "@/components/comunes/EstadoBadge.jsx";
+import { ConfirmDialog } from "@/components/comunes/ConfirmDialog.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.jsx";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.jsx";
@@ -22,6 +23,7 @@ import { PORTAL_URL } from "@/config/config.js";
 import {
   actualizarMiOrganizacion,
   crearMiOrganizacion,
+  darDeBajaOrganizacion,
   obtenerEstadisticas,
   obtenerMiembros,
   solicitarDominio,
@@ -68,7 +70,7 @@ function FormOrg({ valores, setValores, onGuardar, guardando, textoBoton }) {
 
 export default function InmobiliariaPage() {
   const { usuario } = useContext(AuthContext);
-  const { organizaciones, organizacion, esPersonal, puedeAdministrar, rolEnOrg, cargandoOrgs, recargarOrgs } =
+  const { organizaciones, organizacion, esPersonal, puedeAdministrar, rolEnOrg, cargandoOrgs, recargarOrgs, cambiarEspacio } =
     useContext(WorkspaceContext);
   const queryClient = useQueryClient();
   const [crearAbierto, setCrearAbierto] = useState(false);
@@ -76,6 +78,8 @@ export default function InmobiliariaPage() {
   const [editando, setEditando] = useState(false);
   const [editValores, setEditValores] = useState(VACIO);
   const [dominio, setDominio] = useState("");
+  const [bajaPaso1, setBajaPaso1] = useState(false);
+  const [bajaPaso2, setBajaPaso2] = useState(false);
 
   const orgId = organizacion?.id;
   const miembrosQ = useQuery({
@@ -132,6 +136,16 @@ export default function InmobiliariaPage() {
     },
     onError: (err) => toast.error(err.message),
   });
+  const mBaja = useMutation({
+    mutationFn: () => darDeBajaOrganizacion(orgId),
+    onSuccess: () => {
+      toast.success("Inmobiliaria dada de baja.");
+      setBajaPaso2(false);
+      cambiarEspacio("personal");
+      refrescarOrg();
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   if (cargandoOrgs) {
     return (
@@ -177,10 +191,15 @@ export default function InmobiliariaPage() {
         <Card>
           <CardContent className="p-6 text-sm">
             <p className="mb-2">Pertenece a {organizaciones.length} inmobiliaria(s). Use el selector de espacio (arriba) para ver cada una.</p>
-            <ul className="list-disc pl-5">
+            <ul className="grid gap-2">
               {organizaciones.map((o) => (
-                <li key={o.id}>
-                  {o.nombre} ({o.rol_en_org === "agency_admin" ? "Administrador" : "Agente"})
+                <li key={o.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3">
+                  <span>
+                    {o.nombre} ({o.rol_en_org === "agency_admin" ? "Administrador" : "Agente"})
+                  </span>
+                  <Button size="sm" onClick={() => cambiarEspacio(`org:${o.id}`)}>
+                    Ver
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -326,6 +345,36 @@ export default function InmobiliariaPage() {
             ) : null}
           </CardContent>
         </Card>
+
+        {puedeAdministrar ? (
+          <Card className="border-destructive lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Dar de baja</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-2 text-sm">
+              <p>
+                Para eliminar la inmobiliaria primero retire todos los agentes y borre
+                todos los inmuebles. Ahora:{" "}
+                <strong>{stats?.miembros.agentes ?? "…"} agentes</strong>,{" "}
+                <strong>{stats?.propiedades.total ?? "…"} inmuebles</strong>.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Link to="/equipo"><Button size="sm" variant="outline">Retirar agentes</Button></Link>
+                <a href={`${PORTAL_URL}/usuario/mis-anuncios`} target="_blank" rel="noreferrer">
+                  <Button size="sm" variant="outline">Borrar inmuebles</Button>
+                </a>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={(stats?.miembros.agentes ?? 1) > 0 || (stats?.propiedades.total ?? 1) > 0}
+                  onClick={() => setBajaPaso1(true)}
+                >
+                  Dar de baja
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
 
       <Dialog open={editando} onOpenChange={setEditando}>
@@ -336,6 +385,26 @@ export default function InmobiliariaPage() {
           <FormOrg valores={editValores} setValores={setEditValores} onGuardar={() => mEditar.mutate(editValores)} guardando={mEditar.isPending} textoBoton="Guardar" />
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        abierto={bajaPaso1}
+        titulo="Dar de baja la inmobiliaria (1/2)"
+        descripcion={`"${o.nombre}" se eliminará con sus membresías. Confirme que ya retiró agentes y borró inmuebles.`}
+        confirmarTexto="Continuar"
+        onCancelar={() => setBajaPaso1(false)}
+        onConfirmar={() => {
+          setBajaPaso1(false);
+          setBajaPaso2(true);
+        }}
+      />
+      <ConfirmDialog
+        abierto={bajaPaso2}
+        titulo="Confirmación final (2/2)"
+        descripcion="Esta acción elimina la inmobiliaria y no se puede deshacer."
+        confirmarTexto="Sí, dar de baja"
+        onCancelar={() => setBajaPaso2(false)}
+        onConfirmar={() => mBaja.mutate()}
+      />
     </>
   );
 }

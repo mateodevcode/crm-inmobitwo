@@ -24,6 +24,7 @@ import {
   ImageIcon,
   ShieldCheckIcon,
   UserCogIcon,
+  LandmarkIcon,
   GlobeIcon,
   BuildingIcon,
   UsersIcon,
@@ -83,6 +84,11 @@ export function AppSidebar(props) {
       title: "Usuarios",
       url: "/usuarios",
       icon: UserCogIcon,
+    });
+    principal.splice(5, 0, {
+      title: "Inmobiliarias",
+      url: "/inmobiliarias",
+      icon: LandmarkIcon,
     });
   }
   if (!esPersonal && puedeAdministrar) {

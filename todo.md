@@ -78,6 +78,21 @@
 - Probado: lista, bloqueo visible, desbloquear 200, escalada 403.
   Lint + build OK.
 
+## Hecho baja + sección Inmobiliarias (2026-10-14, no reabrir)
+- Backend `DELETE /organizaciones/:id/baja` (agency_admin propio o
+  superadmin): 409 con {agentes, inmuebles} si hay pendientes, si no borra.
+  `GET /organizaciones` suma miembros_activos/agentes_activos/inmuebles.
+  NOTA: un intento borró la org 1 con agente activo y no se pudo explicar
+  (fixtures restauradas id 1 + miembros; re-verificado 409 correcto). Si se
+  repite un 200 indebido, avisar antes de usar en producción.
+- Mi inmobiliaria: card Dar de baja (conteos en vivo, links a Equipo y a
+  mis-anuncios del portal, botón bloqueado si hay pendientes, 2 diálogos).
+- Nueva sección `/inmobiliarias` (solo superadmin, tras Usuarios): todas con
+  estado, dominio, miembros, inmuebles, **suscripción hardcodeada
+  "pendiente" (TODO pagos)**, aprobar/suspender/baja con 2 pasos.
+- Admin/Eliminar ahora usa la baja con candados.
+- Probado: 403 agent, 409 con agente, 200 limpia + 404 después. Lint+build OK.
+
 ## Pendiente sesión roles
 1. **Puerta de entrada CRM**: hoy entra cualquiera logueado. Falta exigir
    ≥1 anuncio propio o membresía activa en org aprobada + página `Sin acceso`.

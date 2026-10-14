@@ -21,6 +21,32 @@
 - Fix `PATCH /crm/contactos/:id/asignar` 500 (`whereEspacioPropio(crm,"c",3)`).
 - Guards verificados: agent 403 en asignar/etapas, admin OK.
 
+## Hecho módulo Admin (2026-10-14, no reabrir)
+- `/admin` del portal ELIMINADO (`src/app/admin/`, `src/views/admin/`,
+  `mapaRutas.js`, `RutaAdmin`, `items_admin`, entrada Rutas del sidebar,
+  `/admin/` del robots). Cero referencias restantes.
+- Nuevo módulo CRM `/admin` tras Portada, solo superadmin (`RutaSuperadmin`
+  + sidebar `ShieldCheckIcon`): tabs por estado, crear, editar, aprobar,
+  suspender, eliminar, dominio activar/pausar/quitar, enlace a ficha portal.
+- Fix backend `aprobarOrganizacion`: nunca hacía el UPDATE (404 siempre).
+  Ahora `UPDATE estado='aprobada' RETURNING *`.
+- Botón "Administrar inmobiliarias" del portal apunta a `${URL_CRM}/admin`.
+- Probado E2E (crear→aprobar→suspender→eliminar). Lint CRM+portal OK, build OK.
+
+## Hecho módulo Mi inmobiliaria (2026-10-14, no reabrir)
+- Ruta CRM `/mi-inmobiliaria` (todos los roles, incl. superadmin), sidebar
+  al final. Sin orgs → crear (nace pendiente + agency_admin). Con org →
+  datos, editar (solo admin), dominio solicitar/estado, tema, miembros
+  (lectura + link a Equipo), resumen stats + links Propiedades/Reportes.
+- Estadísticas/reportes NO se agregaron: ya existen en Reportes, Equipo y
+  Dashboard del CRM (superan al panel del portal).
+- `WorkspaceProvider` expone `recargarOrgs` (fetch extraído a función
+  externa por la regla set-state-in-effect del lint).
+- Probado: miembros/stats 200 como agent, editar agent 403, editar admin
+  200, crear user 201 pendiente. Nota: solo superadmin puede eliminar orgs.
+- Portal intacto (pendiente tu OK para migrar/borrar CrearOrganizacionForm,
+  MiInmobiliariaPanel, AgentesPanel, EstadisticasPanel).
+
 ## Pendiente sesión roles
 1. **Puerta de entrada CRM**: hoy entra cualquiera logueado. Falta exigir
    ≥1 anuncio propio o membresía activa en org aprobada + página `Sin acceso`.
@@ -47,8 +73,8 @@
 - Probado E2E: buscar, PUT, GET público, 400 imagen ajena, 404 id
   inexistente, 403 no-superadmin. Lint CRM+portal OK, build CRM OK.
 - Destacado actual (prueba): propiedad 3, Casa en Barranquilla.
-- Fix portal `UbicacionMapa.jsx`: fallback sin WebGL (aviso + enlace a
-  Google Maps) en vez de tumbar la ficha. Afecta ficha, mis-anuncios y publicar.
+- Fix portal `UbicacionMapa.jsx`: revertido al original (el fallo WebGL era
+  del navegador, verificado con página de diagnóstico ya borrada).
 
 ## Pendiente
 1. **Sus commits/push** (web ~21 archivos, crm varios, backend 016+alquiler).

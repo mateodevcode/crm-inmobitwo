@@ -143,6 +143,7 @@ export default function PortadaPage() {
                     <img src={a.portada} alt="" className="h-40 w-full rounded object-cover" />
                   ) : null}
                   <p className="font-medium">{a.titulo ?? `Anuncio ${a.id}`}</p>
+                  <p className="text-muted-foreground text-xs">ID {a.id}</p>
                   <p className="text-muted-foreground text-sm">
                     {a.ciudad ?? "—"} · <MoneyText valor={a.precio} /> · {a.estado}
                   </p>

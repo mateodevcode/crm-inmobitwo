@@ -70,8 +70,8 @@ jobs:
               done
               [ "$OK" = "1" ] || { echo "❌ certbot falló 3 veces"; exit 1; }
             else
-              echo "→ Certificado ya existe — renovando si es necesario..."
-              sudo certbot renew --quiet
+              echo "→ Certificado ya existe — renovando si es necesario (tolerante: el timer de certbot lo cubre)..."
+              sudo certbot renew --quiet || echo "⚠️ renew omitido (lock ocupado o nada que renovar)"
             fi
 
             echo "→ Nginx (crm.inmobitwo.seventwo.tech)..."

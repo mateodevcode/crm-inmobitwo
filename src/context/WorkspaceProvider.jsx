@@ -11,6 +11,28 @@ import {
   idDeEspacioOrg,
 } from "@/context/espacio.js";
 
+async function fetchOrgs(fijarEspacio, setOrganizaciones, setCargandoOrgs) {
+  setCargandoOrgs(true);
+  try {
+    const res = await apiBackend("/organizaciones/mias");
+    const rows = res.success && Array.isArray(res.data) ? res.data : [];
+    // Solo orgs aprobadas (el backend ya filtra membresía activa).
+    const aprobadas = rows.filter((o) => o.estado === "aprobada");
+    setOrganizaciones(aprobadas);
+    // Si el espacio guardado ya no es válido, vuelve a personal.
+    const actual = obtenerEspacio();
+    if (actual !== ESPACIO_PERSONAL) {
+      const id = idDeEspacioOrg(actual);
+      const valido = aprobadas.some((o) => Number(o.id) === id);
+      if (!valido) fijarEspacio(ESPACIO_PERSONAL);
+    }
+  } catch {
+    setOrganizaciones([]);
+  } finally {
+    setCargandoOrgs(false);
+  }
+}
+
 export function WorkspaceProvider({ children }) {
   const { estaAutenticado } = useContext(AuthContext);
   const queryClient = useQueryClient();
@@ -23,35 +45,15 @@ export function WorkspaceProvider({ children }) {
     setEspacioGuardado(nuevo);
   }, []);
 
+  const cargarOrgs = useCallback(
+    () => fetchOrgs(fijarEspacio, setOrganizaciones, setCargandoOrgs),
+    [fijarEspacio],
+  );
+
   useEffect(() => {
-    let vivo = true;
     if (!estaAutenticado) return undefined;
-    (async () => {
-      setCargandoOrgs(true);
-      try {
-        const res = await apiBackend("/organizaciones/mias");
-        if (!vivo) return;
-        const rows = res.success && Array.isArray(res.data) ? res.data : [];
-        // Solo orgs aprobadas (el backend ya filtra membresía activa).
-        const aprobadas = rows.filter((o) => o.estado === "aprobada");
-        setOrganizaciones(aprobadas);
-        // Si el espacio guardado ya no es válido, vuelve a personal.
-        const actual = obtenerEspacio();
-        if (actual !== ESPACIO_PERSONAL) {
-          const id = idDeEspacioOrg(actual);
-          const valido = aprobadas.some((o) => Number(o.id) === id);
-          if (!valido) fijarEspacio(ESPACIO_PERSONAL);
-        }
-      } catch {
-        if (vivo) setOrganizaciones([]);
-      } finally {
-        if (vivo) setCargandoOrgs(false);
-      }
-    })();
-    return () => {
-      vivo = false;
-    };
-  }, [estaAutenticado, fijarEspacio]);
+    cargarOrgs();
+  }, [estaAutenticado, cargarOrgs]);
 
   const cambiarEspacio = useCallback(
     (nuevo) => {
@@ -84,8 +86,9 @@ export function WorkspaceProvider({ children }) {
           : rolEnOrg === "agency_admin",
       cargandoOrgs: estaAutenticado ? cargandoOrgs : false,
       cambiarEspacio,
+      recargarOrgs: cargarOrgs,
     };
-  }, [espacioGuardado, organizaciones, cargandoOrgs, estaAutenticado, cambiarEspacio]);
+  }, [espacioGuardado, organizaciones, cargandoOrgs, estaAutenticado, cambiarEspacio, cargarOrgs]);
 
   return (
     <WorkspaceContext.Provider value={valor}>

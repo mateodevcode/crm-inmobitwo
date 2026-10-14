@@ -1,5 +1,6 @@
 // src/components/app-sidebar.jsx — sidebar del CRM
 import { useContext } from "react";
+import { NavLink } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AuthContext } from "@/context/AuthContext.js";
 import { WorkspaceContext } from "@/context/WorkspaceContext.js";
@@ -136,11 +137,7 @@ export function AppSidebar(props) {
                   tooltip="Mensajes"
                   data-active={undefined}
                 >
-                  <a
-                    href={`${PORTAL_URL}/usuario/chat`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <NavLink to="/mensajes">
                     <MessagesSquareIcon />
                     <span>Mensajes</span>
                     {noLeidos > 0 ? (
@@ -148,7 +145,7 @@ export function AppSidebar(props) {
                         {noLeidos}
                       </span>
                     ) : null}
-                  </a>
+                  </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

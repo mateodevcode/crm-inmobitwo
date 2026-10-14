@@ -10,6 +10,8 @@ import AdminPage from "@/features/admin/AdminPage.jsx";
 import DominiosPage from "@/features/dominios/DominiosPage.jsx";
 import UsuariosPage from "@/features/usuarios/UsuariosPage.jsx";
 import InmobiliariasPage from "@/features/inmobiliaria/InmobiliariasPage.jsx";
+import MensajesPage from "@/features/mensajes/MensajesPage.jsx";
+import WizardPage from "@/features/propiedades/wizard/WizardPage.jsx";
 import InmobiliariaPage from "@/features/inmobiliaria/InmobiliariaPage.jsx";
 import LeadsPage from "@/features/leads/LeadsPage.jsx";
 import ContactosPage from "@/features/contactos/ContactosPage.jsx";
@@ -87,6 +89,8 @@ export default function AppRouter() {
           <Route path="pipeline" element={<PipelinePage />} />
           <Route path="tareas" element={<TareasPage />} />
           <Route path="propiedades" element={<PropiedadesPage />} />
+          <Route path="propiedades/nuevo" element={<WizardPage />} />
+          <Route path="propiedades/:id/editar" element={<WizardPage />} />
           <Route
             path="equipo"
             element={
@@ -98,6 +102,7 @@ export default function AppRouter() {
           <Route path="reportes" element={<ReportesPage />} />
           <Route path="ajustes" element={<AjustesPage />} />
           <Route path="mi-inmobiliaria" element={<InmobiliariaPage />} />
+          <Route path="mensajes" element={<MensajesPage />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

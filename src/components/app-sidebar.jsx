@@ -22,8 +22,11 @@ import {
 import {
   LayoutDashboardIcon,
   ImageIcon,
+  ShieldCheckIcon,
+  BuildingIcon,
   UsersIcon,
-  ContactRoundIcon,  KanbanIcon,
+  ContactRoundIcon,
+  KanbanIcon,
   ListChecksIcon,
   Building2Icon,
   UsersRoundIcon,
@@ -32,6 +35,7 @@ import {
   GlobeIcon,
   MessagesSquareIcon,
 } from "lucide-react";
+import Logo from "./comunes/Logo";
 
 const NAV_PRINCIPAL = [
   { title: "Panel", url: "/", icon: LayoutDashboardIcon },
@@ -42,6 +46,7 @@ const NAV_PRINCIPAL = [
   { title: "Propiedades", url: "/propiedades", icon: Building2Icon },
   { title: "Reportes", url: "/reportes", icon: ChartBarIcon },
   { title: "Ajustes", url: "/ajustes", icon: Settings2Icon },
+  { title: "Mi inmobiliaria", url: "/mi-inmobiliaria", icon: BuildingIcon },
 ];
 
 export function AppSidebar(props) {
@@ -63,6 +68,11 @@ export function AppSidebar(props) {
       url: "/portada",
       icon: ImageIcon,
     });
+    principal.splice(2, 0, {
+      title: "Admin",
+      url: "/admin",
+      icon: ShieldCheckIcon,
+    });
   }
   if (!esPersonal && puedeAdministrar) {
     principal.splice(6, 0, {
@@ -77,7 +87,10 @@ export function AppSidebar(props) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <span className="px-2 text-base font-semibold">CRM inmobitwo</span>
+            <div className="mb-4">
+              <Logo />
+            </div>
+            {/* <span className="px-2 text-base font-semibold">CRM inmobitwo</span> */}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <WorkspaceSwitcher />
@@ -95,11 +108,7 @@ export function AppSidebar(props) {
                   tooltip="Ir al portal"
                   data-active={undefined}
                 >
-                  <a
-                    href={PORTAL_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <a href={PORTAL_URL} target="_blank" rel="noreferrer">
                     <GlobeIcon />
                     <span>Ir al portal</span>
                   </a>

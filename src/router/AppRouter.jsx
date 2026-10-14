@@ -6,6 +6,8 @@ import NotFound from "@/router/NotFound.jsx";
 import LoginPage from "@/features/auth/LoginPage.jsx";
 import DashboardPage from "@/features/dashboard/DashboardPage.jsx";
 import PortadaPage from "@/features/portada/PortadaPage.jsx";
+import AdminPage from "@/features/admin/AdminPage.jsx";
+import InmobiliariaPage from "@/features/inmobiliaria/InmobiliariaPage.jsx";
 import LeadsPage from "@/features/leads/LeadsPage.jsx";
 import ContactosPage from "@/features/contactos/ContactosPage.jsx";
 import ContactoDetallePage from "@/features/contactos/ContactoDetallePage.jsx";
@@ -44,6 +46,14 @@ export default function AppRouter() {
               </RutaSuperadmin>
             }
           />
+          <Route
+            path="admin"
+            element={
+              <RutaSuperadmin>
+                <AdminPage />
+              </RutaSuperadmin>
+            }
+          />
           <Route path="leads" element={<LeadsPage />} />
           <Route path="contactos" element={<ContactosPage />} />
           <Route path="contactos/:id" element={<ContactoDetallePage />} />
@@ -60,6 +70,7 @@ export default function AppRouter() {
           />
           <Route path="reportes" element={<ReportesPage />} />
           <Route path="ajustes" element={<AjustesPage />} />
+          <Route path="mi-inmobiliaria" element={<InmobiliariaPage />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

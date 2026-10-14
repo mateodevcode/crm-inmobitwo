@@ -47,6 +47,23 @@
 - Portal intacto (pendiente tu OK para migrar/borrar CrearOrganizacionForm,
   MiInmobiliariaPanel, AgentesPanel, EstadisticasPanel).
 
+## Hecho módulo Dominios (2026-10-14, no reabrir)
+- Remoto total: desde `/dominios` (solo superadmin, tras Admin) se ejecuta
+  alta/baja en el VPS; el log llega en vivo (poll 2s) y al terminar en OK la
+  BD pasa sola a `activo` / `sin_dominio`. Cloudflare sigue manual + check
+  DNS previo que frena sin DNS.
+- Scripts v2 no-interactivos en `backend/scripts-dominios/` (plantilla nginx
+  proxy al Next :3000, certbot non-interactive, salida [OK]/[ERROR], exit
+  codes). Viejos de `crm/scripts/` eliminados. OJO: FRONT_ROOT viejo
+  corregido de paso (era dist estático, hoy es proxy).
+- BD: `dominios_jobs` (018 aplicada + db.sql + orden.sql + drop_all.sql).
+- Backend: `dominios.controllers.js` + `routes` + `lib/sshDominios.js`
+  (una ejecución a la vez: 409; sin SSH conf: 503). Dockerfile +ssh/dig.
+  Deploy sync scripts + mount `.ssh` + `.env.example` + `docs/DOMINIOS-VPS.md`
+  (clave, sudoers, env). Falta una vez en VPS: pasos del doc.
+- Probado: lectura 200, 403 no-sudo, 400/404 validaciones, 503 sin SSH.
+  Ejecución real pendiente de la instalación VPS (pasos del doc).
+
 ## Pendiente sesión roles
 1. **Puerta de entrada CRM**: hoy entra cualquiera logueado. Falta exigir
    ≥1 anuncio propio o membresía activa en org aprobada + página `Sin acceso`.

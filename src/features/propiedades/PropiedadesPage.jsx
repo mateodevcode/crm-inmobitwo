@@ -1,10 +1,14 @@
 import { useContext, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { WorkspaceContext } from "@/context/WorkspaceContext.js";
 import { PORTAL_URL } from "@/config/config.js";
 import { PageHeader } from "@/components/comunes/PageHeader.jsx";
 import { DataTable } from "@/components/comunes/DataTable.jsx";
 import { MoneyText } from "@/components/comunes/MoneyText.jsx";
+import { ConfirmDialog } from "@/components/comunes/ConfirmDialog.jsx";
+import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import {
   Select,
@@ -15,20 +19,44 @@ import {
 } from "@/components/ui/select.jsx";
 import { formatoFecha } from "@/utils/fechas.js";
 import { obtenerPropiedades } from "@/features/propiedades/api.js";
+import { cambiarEstadoProp, eliminarPropiedad } from "@/features/propiedades/wizard/api.js";
 
 const LIMITE = 20;
 
 export default function PropiedadesPage() {
   const { espacio } = useContext(WorkspaceContext);
+  const queryClient = useQueryClient();
   const [pagina, setPagina] = useState(1);
   const [estado, setEstado] = useState("");
   const [q, setQ] = useState("");
   const [busqueda, setBusqueda] = useState("");
+  const [eliminar, setEliminar] = useState(null);
 
+  const clave = ["crm-propiedades", espacio, pagina, estado, busqueda];
   const { data, isLoading } = useQuery({
-    queryKey: ["crm-propiedades", espacio, pagina, estado, busqueda],
+    queryKey: clave,
     queryFn: () =>
       obtenerPropiedades({ pagina, limite: LIMITE, estado: estado || undefined, q: busqueda || undefined }),
+  });
+
+  const refrescar = () => queryClient.invalidateQueries({ queryKey: ["crm-propiedades"] });
+  const mEstado = useMutation({
+    mutationFn: (p) =>
+      cambiarEstadoProp(p.id, p.estado === "publicado" ? "no_publicado" : "publicado"),
+    onSuccess: () => {
+      toast.success("Estado actualizado.");
+      refrescar();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const mEliminar = useMutation({
+    mutationFn: (id) => eliminarPropiedad(id),
+    onSuccess: () => {
+      toast.success("Inmueble eliminado.");
+      setEliminar(null);
+      refrescar();
+    },
+    onError: (err) => toast.error(err.message),
   });
 
   const filas = data?.data ?? [];
@@ -36,7 +64,15 @@ export default function PropiedadesPage() {
 
   return (
     <>
-      <PageHeader titulo="Propiedades" descripcion="Sus anuncios en el portal." />
+      <PageHeader
+        titulo="Propiedades"
+        descripcion="Sus anuncios en el portal."
+        acciones={
+          <Link to="/propiedades/nuevo">
+            <Button>Nuevo inmueble</Button>
+          </Link>
+        }
+      />
       <div className="flex flex-wrap gap-3">
         <form
           className="flex gap-2"
@@ -100,13 +136,19 @@ export default function PropiedadesPage() {
             key: "acciones",
             titulo: "Acciones",
             render: (p) => (
-              <div className="flex gap-3 text-sm">
-                <a href={`${PORTAL_URL}/inmueble/${p.id}`} target="_blank" rel="noreferrer">
-                  Ver
+              <div className="flex flex-wrap gap-3 text-sm">
+                <a href={`${PORTAL_URL}/inmueble/${p.id}`} target="_blank" rel="noreferrer" className="underline">
+                  Ver en portal
                 </a>
-                <a href={`${PORTAL_URL}/usuario/mis-anuncios`} target="_blank" rel="noreferrer">
-                  Editar en el portal
-                </a>
+                <Link to={`/propiedades/${p.id}/editar`} className="underline">
+                  Editar
+                </Link>
+                <button type="button" className="underline" onClick={() => mEstado.mutate(p)}>
+                  {p.estado === "publicado" ? "Pausar" : "Publicar"}
+                </button>
+                <button type="button" className="text-destructive underline" onClick={() => setEliminar(p)}>
+                  Eliminar
+                </button>
               </div>
             ),
           },
@@ -117,6 +159,15 @@ export default function PropiedadesPage() {
         total={paginacion.total}
         onPagina={setPagina}
         cargando={isLoading}
+      />
+
+      <ConfirmDialog
+        abierto={!!eliminar}
+        titulo="Eliminar inmueble"
+        descripcion={`Se eliminará "${eliminar?.titulo}" con sus fotos. Esta acción no se puede deshacer.`}
+        confirmarTexto="Eliminar"
+        onCancelar={() => setEliminar(null)}
+        onConfirmar={() => mEliminar.mutate(eliminar.id)}
       />
     </>
   );

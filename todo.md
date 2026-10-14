@@ -93,6 +93,50 @@
 - Admin/Eliminar ahora usa la baja con candados.
 - Probado: 403 agent, 409 con agente, 200 limpia + 404 después. Lint+build OK.
 
+## Hecho módulo Mensajes (2026-10-14, no reabrir)
+- Ruta CRM `/mensajes` (todos los roles): lista con no-leídos + ventana
+  (burbujas, hora, ✓✓, cargar anteriores, enviar con UUID, eliminar con
+  confirmación, link a la ficha). Polling 10s/3s (sin socket en v1).
+- Sidebar "Mensajes" ahora es NavLink interno con contador (fuera el
+  redirect al portal). Sin cambios de backend (endpoints intactos).
+- Probado ciclo completo (crear 201, enviar 201, listar, leer, eliminar;
+  datos de prueba limpiados). Lint + build OK.
+
+## Hecho fix Propiedades (2026-10-14, no reabrir)
+- `GET /crm/propiedades` daba 500 a todos (`p.ciudad` no existe): ahora
+  `LEFT JOIN cities` + búsqueda por título/ciudad/dirección/barrio.
+  Verificado 200 con las 3 del superadmin + filtro q.
+- Nota: el superadmin ve las suyas en personal; ver TODAS (sudo) queda para
+  la puerta de entrada pendiente.
+
+## Hecho wizard Propiedades completo (2026-10-14, no reabrir)
+- (igual que antes, más correcciones:)
+- Precio en paso 2 con precálculo (sugerido + evaluar veredicto), mismo
+  orden que el portal. Barrios por ciudad (select + Otro manual).
+- Mapa con error visible (si WebGL falla muestra el motivo en vez de nada).
+  Geocode verificado 200. Si "Verificar mapa" sigue fallando, pedir el texto
+  del toast/modal al usuario.
+- Paridad portal (2026-10-14): precio en paso 2 (ya estaba), +número,
+  +alquiler vacacional, +preferencia contacto (cómo + cuál número), org del
+  espacio, +plot condicional lote/finca, +piso/interior, +antigüedad auto,
+  +título sugerido visible, +★ principal en galería, rental en mapearApi.
+  Verificado publicar con todos los campos nuevos (título autogenerado OK).
+- Rutas `/propiedades/nuevo` y `/propiedades/:id/editar` (wizard 3 pasos
+  shadcn): tipo/operación/org/precio, ubicación (depto→ciudad, geocode +
+  mapa MapLibre con pin arrastrable), contacto con validación CO, detalles
+  (dimensiones, estado, parqueadero, servicios, 6 flags + N:M por grupo,
+  docs, precio, título sugerido, descripción con IA), fotos (principal,
+  galería 10, planos, quitar actuales, continuar sin fotos).
+- Lista: Nuevo, Editar interno, Publicar/Pausar, Eliminar con confirm,
+  Ver en portal. Fuera "Editar en el portal".
+- Backend: `agency_admin` puede editar/eliminar anuncios de su org
+  (antes 403; verificado 200/200/403). Sin migración.
+- Ofertas Fase 4: al crear van en `ofertas[]`, al editar precio suelto.
+- Dep nueva: `maplibre-gl` (commitear package.json).
+- Probado E2E sin fotos (crear 201, caracts, patch, delete limpiado).
+  Fotos pendientes de probar con Rust media arriba (no corre en local).
+  Lint + build OK.
+
 ## Pendiente sesión roles
 1. **Puerta de entrada CRM**: hoy entra cualquiera logueado. Falta exigir
    ≥1 anuncio propio o membresía activa en org aprobada + página `Sin acceso`.

@@ -23,6 +23,7 @@ import {
   LayoutDashboardIcon,
   ImageIcon,
   ShieldCheckIcon,
+  UserCogIcon,
   GlobeIcon,
   BuildingIcon,
   UsersIcon,
@@ -77,6 +78,11 @@ export function AppSidebar(props) {
       title: "Dominios",
       url: "/dominios",
       icon: GlobeIcon,
+    });
+    principal.splice(4, 0, {
+      title: "Usuarios",
+      url: "/usuarios",
+      icon: UserCogIcon,
     });
   }
   if (!esPersonal && puedeAdministrar) {

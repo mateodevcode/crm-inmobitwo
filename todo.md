@@ -64,6 +64,20 @@
 - Probado: lectura 200, 403 no-sudo, 400/404 validaciones, 503 sin SSH.
   Ejecución real pendiente de la instalación VPS (pasos del doc).
 
+## Hecho módulo Usuarios (2026-10-14, no reabrir)
+- Ruta CRM `/usuarios` tras Dominios, solo superadmin (`RutaSuperadmin` +
+  sidebar `UserCogIcon`): tabla con buscador + paginación servidor (nombre,
+  correo/teléfono, rol, inmuebles propios, orgs con rol, registro/último
+  login, estado + verificado) y Desbloquear con confirmación.
+- Backend: `GET /usuarios` ahora solo superadmin con q/paginación/conteos;
+  `PATCH /usuarios/:id/desbloquear` nuevo (resetea bloqueo + intentos).
+- Seguridad (crítico, verificado 403): `PATCH /:id` solo propio o superadmin
+  y `rol/bloqueado/intentos/email_verificado/provider` solo superadmin
+  (cualquiera se hacía superadmin); `DELETE /:id` propio o superadmin.
+  Portal intacto (perfil propio sigue 200; nadie usaba el DELETE).
+- Probado: lista, bloqueo visible, desbloquear 200, escalada 403.
+  Lint + build OK.
+
 ## Pendiente sesión roles
 1. **Puerta de entrada CRM**: hoy entra cualquiera logueado. Falta exigir
    ≥1 anuncio propio o membresía activa en org aprobada + página `Sin acceso`.

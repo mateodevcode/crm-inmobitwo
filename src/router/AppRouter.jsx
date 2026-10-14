@@ -1,10 +1,11 @@
 // src/router/AppRouter.jsx — rutas del CRM
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { RutaAdminOrg, RutaPrivada, RutaPublica } from "@/router/guards.jsx";
+import { RutaAdminOrg, RutaPrivada, RutaPublica, RutaSuperadmin } from "@/router/guards.jsx";
 import CrmLayout from "@/layouts/CrmLayout.jsx";
 import NotFound from "@/router/NotFound.jsx";
 import LoginPage from "@/features/auth/LoginPage.jsx";
 import DashboardPage from "@/features/dashboard/DashboardPage.jsx";
+import PortadaPage from "@/features/portada/PortadaPage.jsx";
 import LeadsPage from "@/features/leads/LeadsPage.jsx";
 import ContactosPage from "@/features/contactos/ContactosPage.jsx";
 import ContactoDetallePage from "@/features/contactos/ContactoDetallePage.jsx";
@@ -35,6 +36,14 @@ export default function AppRouter() {
           }
         >
           <Route index element={<DashboardPage />} />
+          <Route
+            path="portada"
+            element={
+              <RutaSuperadmin>
+                <PortadaPage />
+              </RutaSuperadmin>
+            }
+          />
           <Route path="leads" element={<LeadsPage />} />
           <Route path="contactos" element={<ContactosPage />} />
           <Route path="contactos/:id" element={<ContactoDetallePage />} />

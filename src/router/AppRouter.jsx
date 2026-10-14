@@ -7,6 +7,7 @@ import LoginPage from "@/features/auth/LoginPage.jsx";
 import DashboardPage from "@/features/dashboard/DashboardPage.jsx";
 import PortadaPage from "@/features/portada/PortadaPage.jsx";
 import AdminPage from "@/features/admin/AdminPage.jsx";
+import DominiosPage from "@/features/dominios/DominiosPage.jsx";
 import InmobiliariaPage from "@/features/inmobiliaria/InmobiliariaPage.jsx";
 import LeadsPage from "@/features/leads/LeadsPage.jsx";
 import ContactosPage from "@/features/contactos/ContactosPage.jsx";
@@ -51,6 +52,14 @@ export default function AppRouter() {
             element={
               <RutaSuperadmin>
                 <AdminPage />
+              </RutaSuperadmin>
+            }
+          />
+          <Route
+            path="dominios"
+            element={
+              <RutaSuperadmin>
+                <DominiosPage />
               </RutaSuperadmin>
             }
           />

@@ -23,6 +23,7 @@ import {
   LayoutDashboardIcon,
   ImageIcon,
   ShieldCheckIcon,
+  GlobeIcon,
   BuildingIcon,
   UsersIcon,
   ContactRoundIcon,
@@ -32,7 +33,6 @@ import {
   UsersRoundIcon,
   ChartBarIcon,
   Settings2Icon,
-  GlobeIcon,
   MessagesSquareIcon,
 } from "lucide-react";
 import Logo from "./comunes/Logo";
@@ -73,6 +73,11 @@ export function AppSidebar(props) {
       url: "/admin",
       icon: ShieldCheckIcon,
     });
+    principal.splice(3, 0, {
+      title: "Dominios",
+      url: "/dominios",
+      icon: GlobeIcon,
+    });
   }
   if (!esPersonal && puedeAdministrar) {
     principal.splice(6, 0, {
@@ -90,7 +95,6 @@ export function AppSidebar(props) {
             <div className="mb-4">
               <Logo />
             </div>
-            {/* <span className="px-2 text-base font-semibold">CRM inmobitwo</span> */}
           </SidebarMenuItem>
           <SidebarMenuItem>
             <WorkspaceSwitcher />

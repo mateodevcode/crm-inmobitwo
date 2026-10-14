@@ -7,6 +7,7 @@ import { WorkspaceProvider } from "@/context/WorkspaceProvider.jsx";
 import AppRouter from "@/router/AppRouter.jsx";
 import { Toaster } from "@/components/ui/sonner.jsx";
 import { TooltipProvider } from "@/components/ui/tooltip.jsx";
+import { scrollbarStyles } from "./data/data.styles.scrollbar";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +25,7 @@ createRoot(document.getElementById("root")).render(
         <WorkspaceProvider>
           <TooltipProvider>
             <AppRouter />
+            <style>{scrollbarStyles.default}</style>
           </TooltipProvider>
           <Toaster />
         </WorkspaceProvider>

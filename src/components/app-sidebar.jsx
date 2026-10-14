@@ -1,6 +1,7 @@
 // src/components/app-sidebar.jsx — sidebar del CRM
 import { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { AuthContext } from "@/context/AuthContext.js";
 import { WorkspaceContext } from "@/context/WorkspaceContext.js";
 import { PORTAL_URL } from "@/config/config.js";
 import { apiBackend } from "@/api/apiBackend.js";
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/sidebar.jsx";
 import {
   LayoutDashboardIcon,
+  ImageIcon,
   UsersIcon,
   ContactRoundIcon,  KanbanIcon,
   ListChecksIcon,
@@ -43,6 +45,7 @@ const NAV_PRINCIPAL = [
 ];
 
 export function AppSidebar(props) {
+  const { usuario } = useContext(AuthContext);
   const { puedeAdministrar, esPersonal } = useContext(WorkspaceContext);
   const { data: noLeidos } = useQuery({
     queryKey: ["chat-no-leidos"],
@@ -54,6 +57,13 @@ export function AppSidebar(props) {
   });
 
   const principal = [...NAV_PRINCIPAL];
+  if (usuario?.rol === "superadmin") {
+    principal.splice(1, 0, {
+      title: "Portada",
+      url: "/portada",
+      icon: ImageIcon,
+    });
+  }
   if (!esPersonal && puedeAdministrar) {
     principal.splice(6, 0, {
       title: "Equipo",

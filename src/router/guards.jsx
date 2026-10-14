@@ -1,4 +1,4 @@
-// src/router/guards.jsx — RutaPrivada espera la sesión; RutaAdminOrg es agency_admin.
+// src/router/guards.jsx — RutaPrivada espera la sesión; RutaAdminOrg es agency_admin; RutaSuperadmin es superadmin.
 import { useContext } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext.js";
@@ -34,6 +34,17 @@ export function RutaAdminOrg({ children }) {
   if (!estaAutenticado) return <Navigate to="/login" replace />;
   // Equipo solo existe en espacio de organización con agency_admin.
   if (esPersonal || rolEnOrg !== "agency_admin") {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
+export function RutaSuperadmin({ children }) {
+  const { usuario, estaAutenticado, cargandoSesion } = useContext(AuthContext);
+  if (cargandoSesion) return null;
+  if (!estaAutenticado) return <Navigate to="/login" replace />;
+  // Portada solo existe para el superadmin global.
+  if (usuario?.rol !== "superadmin") {
     return <Navigate to="/" replace />;
   }
   return children;

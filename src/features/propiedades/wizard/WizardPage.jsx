@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AuthContext } from "@/context/AuthContext.js";
@@ -7,10 +7,18 @@ import { WorkspaceContext } from "@/context/WorkspaceContext.js";
 import { apiBackend } from "@/api/apiBackend.js";
 import { PageHeader } from "@/components/comunes/PageHeader.jsx";
 import { Button } from "@/components/ui/button.jsx";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog.jsx";
 import Paso1 from "@/features/propiedades/wizard/Paso1.jsx";
 import Paso2 from "@/features/propiedades/wizard/Paso2.jsx";
 import Paso3 from "@/features/propiedades/wizard/Paso3.jsx";
 import { FORM_INICIAL, mapearApi } from "@/features/propiedades/wizard/formInit.js";
+import {
+  guardarProgreso,
+  guardarSnapshot,
+  leerProgreso,
+  leerSnapshot,
+  limpiarTodo,
+} from "@/features/propiedades/wizard/progreso.js";
 import {
   actualizarPropiedad,
   crearPublicacion,
@@ -28,14 +36,34 @@ export default function WizardPage() {
   const esEdicion = id != null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [params] = useSearchParams();
   const { usuario } = useContext(AuthContext);
   const { organizacion, esPersonal } = useContext(WorkspaceContext);
 
-  const [paso, setPaso] = useState(0);
-  const [form, setForm] = useState(() => ({
-    ...FORM_INICIAL,
-    contactName: usuario?.name ?? "",
-  }));
+  const [paso, setPaso] = useState(() => {
+    const p = Number(params.get("paso"));
+    return Number.isInteger(p) && p >= 0 && p <= 2 ? p : 0;
+  });
+  // Progreso guardado (solo al crear): se restaura una vez al montar.
+  const [progresoInicial] = useState(() => (esEdicion ? null : leerProgreso()));
+  const [modalContinuar, setModalContinuar] = useState(() => !!progresoInicial?.id);
+  const [form, setForm] = useState(() => {
+    const base = { ...FORM_INICIAL, contactName: usuario?.name ?? "" };
+    if (!esEdicion) {
+      const snap = leerSnapshot();
+      if (snap) return { ...base, ...snap };
+    }
+    return base;
+  });
+
+  // Retomar paso guardado (sin id creado) al montar.
+  useEffect(() => {
+    if (esEdicion || !progresoInicial || progresoInicial.id || modalContinuar) return;
+    if (progresoInicial.step === 1 || progresoInicial.step === 0) {
+      queueMicrotask(() => setPaso(progresoInicial.step));
+    }
+  }, [esEdicion, progresoInicial, modalContinuar]);
+
   const [featuresSel, setFeaturesSel] = useState([]);
   const [telsPaso1, setTelsPaso1] = useState([]);
   const [anuncioId, setAnuncioId] = useState(id ?? null);
@@ -44,6 +72,16 @@ export default function WizardPage() {
   const [planos, setPlanos] = useState([]);
   const [galeriaActual, setGaleriaActual] = useState([]);
   const [quitarOrdenes, setQuitarOrdenes] = useState([]);
+
+  // Autosave pasos 0-1 (igual que el portal, cada 500ms).
+  useEffect(() => {
+    if (esEdicion || modalContinuar || paso >= 2) return undefined;
+    const t = setTimeout(() => {
+      guardarSnapshot(form);
+      guardarProgreso({ id: anuncioId, step: paso });
+    }, 500);
+    return () => clearTimeout(t);
+  });
 
   // Cada paso arranca arriba del todo.
   useEffect(() => {
@@ -160,8 +198,9 @@ export default function WizardPage() {
 
   const mGuardar = useMutation({
     mutationFn: guardarPaso2,
-    onSuccess: () => {
+    onSuccess: (pid) => {
       queryClient.invalidateQueries({ queryKey: ["crm-propiedades"] });
+      if (!esEdicion) guardarProgreso({ id: pid, step: 2 });
       setPaso(2);
     },
     onError: (err) => toast.error(err.message),
@@ -172,15 +211,21 @@ export default function WizardPage() {
       toast.error("Guarde los detalles primero.");
       return;
     }
-    if (conFotos && (principal || galeria.length > 0 || planos.length > 0)) {
+    const archivos = {
+      principal: principal?.file ?? null,
+      galeria: galeria.map((g) => g.file),
+      planos: planos.map((p) => p.file),
+    };
+    if (conFotos && (archivos.principal || archivos.galeria.length > 0 || archivos.planos.length > 0)) {
       await actualizarPropiedad(
         anuncioId,
         {},
-        { principal, galeria, planos },
+        archivos,
         quitarOrdenes.length > 0 ? { imagesToDelete: JSON.stringify(quitarOrdenes) } : {},
       );
     }
     queryClient.invalidateQueries({ queryKey: ["crm-propiedades"] });
+    if (!esEdicion) limpiarTodo();
     toast.success(esEdicion ? "Anuncio actualizado." : "Anuncio publicado.");
     navigate("/propiedades");
   };
@@ -198,6 +243,21 @@ export default function WizardPage() {
       </>
     );
   }
+
+  const empezarNuevo = () => {
+    limpiarTodo();
+    setModalContinuar(false);
+    setForm({ ...FORM_INICIAL, contactName: usuario?.name ?? "" });
+    setFeaturesSel([]);
+    setTelsPaso1([]);
+    setAnuncioId(null);
+    setPrincipal(null);
+    setGaleria([]);
+    setPlanos([]);
+    setGaleriaActual([]);
+    setQuitarOrdenes([]);
+    setPaso(0);
+  };
 
   return (
     <>
@@ -219,6 +279,33 @@ export default function WizardPage() {
           </Button>
         ))}
       </div>
+
+      <Dialog open={modalContinuar} onOpenChange={(v) => !v && setModalContinuar(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tiene un anuncio sin terminar</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm">
+            Quedó en el paso {((progresoInicial?.step ?? 0) + 1)} de 3. ¿Desea continuarlo o empezar uno nuevo?
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={empezarNuevo}>
+              Empezar nuevo
+            </Button>
+            <Button
+              onClick={() => {
+                const pid = progresoInicial.id;
+                const step = progresoInicial.step ?? 2;
+                setModalContinuar(false);
+                limpiarTodo();
+                navigate(`/propiedades/${pid}/editar?paso=${step}`);
+              }}
+            >
+              Continuar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       {paso === 0 ? (
         <Paso1
           form={form}

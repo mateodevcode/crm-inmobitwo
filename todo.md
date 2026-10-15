@@ -136,6 +136,9 @@
 - Probado E2E sin fotos (crear 201, caracts, patch, delete limpiado).
   Fotos pendientes de probar con Rust media arriba (no corre en local).
   Lint + build OK.
+- Persistencia wizard: claves `crm:ultimoAnuncioId` + `crm:publicarAnuncioForm`,
+  autosave 500ms pasos 0-1, Dialog continuar/nuevo, respeta paso (?paso=),
+  limpia al publicar.
 
 ## Pendiente sesión roles
 1. **Puerta de entrada CRM**: hoy entra cualquiera logueado. Falta exigir

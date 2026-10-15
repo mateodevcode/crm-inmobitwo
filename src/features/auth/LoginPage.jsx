@@ -3,6 +3,7 @@ import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import useAuth from "@/hooks/useAuth.js";
 import { PORTAL_URL } from "@/config/config.js";
+import { GoogleButton } from "@/features/auth/GoogleButton.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.jsx";
 import { Input } from "@/components/ui/input.jsx";
@@ -130,6 +131,7 @@ export default function LoginPage() {
           )}
 
           <div className="mt-6 flex flex-col gap-2 text-sm">
+            <GoogleButton />
             <a href={`${PORTAL_URL}/olvidaste-tu-password`}>
               ¿Olvidó su contraseña?
             </a>

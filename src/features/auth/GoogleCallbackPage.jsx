@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext.js";
 import { apiBackend } from "@/api/apiBackend.js";
@@ -8,13 +8,19 @@ export default function GoogleCallbackPage() {
   const [params] = useSearchParams();
   const { guardarSesion } = useContext(AuthContext);
   const [error, setError] = useState(() => (params.get("code") ? null : "Falta el código de autorización."));
+  // El código es de un solo uso: se comparte la misma promesa entre
+  // montajes (ver página del portal).
+  const promesaRef = useRef(null);
 
   useEffect(() => {
     const code = params.get("code");
     if (!code) return;
+    if (!promesaRef.current) {
+      promesaRef.current = apiBackend("/auth/oauth/google/canjear", "POST", { code });
+    }
     let vivo = true;
     (async () => {
-      const res = await apiBackend("/auth/oauth/google/canjear", "POST", { code });
+      const res = await promesaRef.current;
       if (!vivo) return;
       if (res.success) {
         guardarSesion(res.data.usuario, res.data.accessToken);

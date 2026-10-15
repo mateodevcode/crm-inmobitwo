@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import { Label } from "@/components/ui/label.jsx";
 import { Checkbox } from "@/components/ui/checkbox.jsx";
-import { Textarea } from "@/components/ui/textarea.jsx";
 import {
   Select,
   SelectContent,
@@ -23,6 +22,7 @@ import {
   validarPrecio,
 } from "@/features/propiedades/wizard/api.js";
 import { MoneyText } from "@/components/comunes/MoneyText.jsx";
+import { DescriptionEditor } from "@/features/propiedades/wizard/DescriptionEditor.jsx";
 
 const BOOLS_SERV = [
   ["tiene_agua", "Agua"],
@@ -70,6 +70,7 @@ function Numero({ label, valor, onChange, min = 0 }) {
 
 export default function Paso2({ form, set, featuresSel, setFeaturesSel, atras, guardar, guardando }) {
   const [iaLoading, setIaLoading] = useState(false);
+  const [formatosIA, setFormatosIA] = useState([]);
   const [sugerencia, setSugerencia] = useState(null);
   const [veredicto, setVeredicto] = useState(null);
   const [calcLoading, setCalcLoading] = useState(false);
@@ -101,6 +102,7 @@ export default function Paso2({ form, set, featuresSel, setFeaturesSel, atras, g
 
   const pedirIA = async () => {
     setIaLoading(true);
+    setFormatosIA([]);
     try {
       const data = await generarDescripcionIA({
         property_type_id: form.property_type_id,
@@ -118,12 +120,11 @@ export default function Paso2({ form, set, featuresSel, setFeaturesSel, atras, g
         features: featuresSel,
         precio: form.precio,
       });
-      const texto = data?.descripcion ?? data?.texto ?? "";
-      if (texto) {
-        setF("description", texto);
-        toast.success("Descripción generada.");
+      if (data?.formatos?.length > 0) {
+        setFormatosIA(data.formatos);
+        toast.success(`${data.formatos.length} estilos generados. Elija uno.`);
       } else {
-        toast.error("La IA no devolvió texto.");
+        toast.error("La IA no devolvió estilos.");
       }
     } catch (err) {
       toast.error(err.message);
@@ -131,6 +132,8 @@ export default function Paso2({ form, set, featuresSel, setFeaturesSel, atras, g
       setIaLoading(false);
     }
   };
+
+  const sinHtml = (html) => String(html ?? "").replace(/<[^>]*>/g, "");
 
   const grupos = caractsQ.data ?? {};
   const tipoCode = (tiposQ.data ?? []).find((t) => Number(t.id) === Number(form.property_type_id))?.code;
@@ -417,9 +420,30 @@ export default function Paso2({ form, set, featuresSel, setFeaturesSel, atras, g
             <span className="text-muted-foreground"> (lo genera el sistema al publicar)</span>
           </p>
         ) : null}
+        {formatosIA.length > 0 ? (
+          <div className="grid gap-2">
+            {formatosIA.map((f) => (
+              <div key={f.id} className="rounded-lg border p-3">
+                <p className="mb-1 text-sm font-semibold">{f.nombre}</p>
+                <p className="text-muted-foreground mb-2 line-clamp-3 text-sm">{sinHtml(f.descripcion)}</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setF("description", f.descripcion ?? "");
+                    toast.success(`Estilo "${f.nombre}" aplicado.`);
+                  }}
+                >
+                  Usar este estilo
+                </Button>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div className="grid gap-2">
           <Label>Descripción</Label>
-          <Textarea rows={6} value={form.description} onChange={(e) => setF("description", e.target.value)} />
+          <DescriptionEditor value={form.description} onChange={(v) => setF("description", v)} />
         </div>
       </section>
 

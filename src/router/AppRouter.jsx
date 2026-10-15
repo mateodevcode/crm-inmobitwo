@@ -4,6 +4,7 @@ import { RutaAdminOrg, RutaPrivada, RutaPublica, RutaSuperadmin } from "@/router
 import CrmLayout from "@/layouts/CrmLayout.jsx";
 import NotFound from "@/router/NotFound.jsx";
 import LoginPage from "@/features/auth/LoginPage.jsx";
+import GoogleCallbackPage from "@/features/auth/GoogleCallbackPage.jsx";
 import DashboardPage from "@/features/dashboard/DashboardPage.jsx";
 import PortadaPage from "@/features/portada/PortadaPage.jsx";
 import AdminPage from "@/features/admin/AdminPage.jsx";
@@ -35,6 +36,7 @@ export default function AppRouter() {
             </RutaPublica>
           }
         />
+        <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
         <Route
           element={
             <RutaPrivada>

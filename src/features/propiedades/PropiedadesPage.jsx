@@ -114,9 +114,11 @@ export default function PropiedadesPage() {
             titulo: "Anuncio",
             render: (p) => (
               <div className="flex items-center gap-3">
-                {p.portada ? (
-                  <img src={p.portada} alt="" className="h-10 w-14 rounded object-cover" />
-                ) : null}
+                <img
+                  src={p.portada || "/propiedades/imagen_no_disponible.png"}
+                  alt={p.portada ? "" : "Imagen no disponible"}
+                  className="h-10 w-14 rounded object-cover"
+                />
                 <div>
                   <p className="font-medium">{p.titulo}</p>
                   <p className="text-muted-foreground text-xs">{p.ciudad}</p>

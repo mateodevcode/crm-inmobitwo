@@ -86,9 +86,11 @@ export default function PortadaPage() {
             <p className="text-muted-foreground text-sm">Cargando…</p>
           ) : actual ? (
             <div className="flex flex-wrap items-center gap-4">
-              {actual.imagen ? (
-                <img src={actual.imagen} alt="" className="h-24 w-40 rounded object-cover" />
-              ) : null}
+              <img
+                src={actual.imagen || "/propiedades/imagen_no_disponible.png"}
+                alt={actual.imagen ? "" : "Imagen no disponible"}
+                className="h-24 w-40 rounded object-cover"
+              />
               <div>
                 <p className="font-medium">{actual.etiqueta}</p>
                 <a
@@ -139,9 +141,11 @@ export default function PortadaPage() {
                 className={anuncioId === a.id ? "ring-2 ring-primary" : undefined}
               >
                 <CardContent className="grid gap-2 p-4">
-                  {a.portada ? (
-                    <img src={a.portada} alt="" className="h-40 w-full rounded object-cover" />
-                  ) : null}
+                  <img
+                    src={a.portada || "/propiedades/imagen_no_disponible.png"}
+                    alt={a.portada ? "" : "Imagen no disponible"}
+                    className="h-40 w-full rounded object-cover"
+                  />
                   <p className="font-medium">{a.titulo ?? `Anuncio ${a.id}`}</p>
                   <p className="text-muted-foreground text-xs">ID {a.id}</p>
                   <p className="text-muted-foreground text-sm">

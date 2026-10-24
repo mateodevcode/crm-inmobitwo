@@ -48,3 +48,5 @@ src-tauri/gen/
 releases/
 
 usuarios.md
+# graphify (local, no versionar)
+graphify-out/

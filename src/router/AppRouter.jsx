@@ -19,6 +19,7 @@ import ContactosPage from "@/features/contactos/ContactosPage.jsx";
 import ContactoDetallePage from "@/features/contactos/ContactoDetallePage.jsx";
 import PipelinePage from "@/features/pipeline/PipelinePage.jsx";
 import TareasPage from "@/features/tareas/TareasPage.jsx";
+import AgendaPage from "@/features/agenda/AgendaPage.jsx";
 import PropiedadesPage from "@/features/propiedades/PropiedadesPage.jsx";
 import EquipoPage from "@/features/equipo/EquipoPage.jsx";
 import ReportesPage from "@/features/reportes/ReportesPage.jsx";
@@ -90,6 +91,7 @@ export default function AppRouter() {
           <Route path="contactos/:id" element={<ContactoDetallePage />} />
           <Route path="pipeline" element={<PipelinePage />} />
           <Route path="tareas" element={<TareasPage />} />
+          <Route path="agenda" element={<AgendaPage />} />
           <Route path="propiedades" element={<PropiedadesPage />} />
           <Route path="propiedades/nuevo" element={<WizardPage />} />
           <Route path="propiedades/:id/editar" element={<WizardPage />} />

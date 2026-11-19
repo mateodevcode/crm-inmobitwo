@@ -186,6 +186,7 @@ export default function ContactoDetallePage() {
         inicialNueva={{ contacto: { id: c.id, etiqueta: c.nombre } }}
         vacio="Este contacto aún no tiene visitas."
         mostrarFecha
+        ocultarContacto
       />
 
       <Card>

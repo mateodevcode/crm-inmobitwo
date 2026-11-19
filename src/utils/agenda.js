@@ -61,6 +61,13 @@ export function minutosDelDia(fecha) {
   return d.getUTCHours() * 60 + d.getUTCMinutes();
 }
 
+// Siguiente media hora en Bogotá ("HH:MM"), para proponer una hora que no
+// haya pasado. Tope 21:00; si ya es más tarde, propone 21:00 igual.
+export function proximaMediaHora(fecha = new Date()) {
+  const m = Math.min(21 * 60, Math.ceil((minutosDelDia(fecha) + 1) / 30) * 30);
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
+
 // "HH:MM" de Bogotá para inputs type=time.
 export function horaInput(fecha) {
   const m = minutosDelDia(fecha);

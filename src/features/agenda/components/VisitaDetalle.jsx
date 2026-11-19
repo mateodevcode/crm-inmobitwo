@@ -31,7 +31,7 @@ import {
 import { Textarea } from "@/components/ui/textarea.jsx";
 import { cambiarEstadoVisita, eliminarVisita } from "@/features/agenda/api.js";
 import { ACTIVOS, ESTADOS, INTERES } from "@/features/agenda/estados.js";
-import { claveDia, textoDiaLargo, textoRangoHora } from "@/utils/agenda.js";
+import { claveDia, textoDiaLargo, textoHora, textoRangoHora } from "@/utils/agenda.js";
 import { enlaceWhatsApp, mostrarTelefono } from "@/utils/telefono.js";
 
 const Fila = ({ icono: Icono, children }) => (
@@ -91,10 +91,18 @@ function Contenido({ visita: v, onCerrar, onEditar }) {
     onError: (err) => toast.error(err.message),
   });
 
-  const textoWhatsApp =
-    `Hola ${v.contacto_nombre}, te escribo para confirmar la visita del ` +
-    `${textoDiaLargo(claveDia(v.inicio_at))} a las ${textoRangoHora(v.inicio_at, v.fin_at).split(" – ")[0]}` +
-    `${v.propiedad_titulo ? ` al inmueble ${v.propiedad_titulo}` : ""}${v.lugar ? ` (${v.lugar})` : ""}. ¿Me confirmas?`;
+  // La hora en es-CO termina en "a. m."/"p. m.": al cerrar la frase con
+  // punto quedaría "p. m..", así que se colapsa el doble punto.
+  const textoWhatsApp = [
+    `Hola ${v.contacto_nombre}, te escribo para confirmar la visita del`,
+    `${textoDiaLargo(claveDia(v.inicio_at))} a las ${textoHora(v.inicio_at)}`,
+    v.propiedad_titulo ? `al inmueble ${v.propiedad_titulo}` : null,
+    v.lugar ? `(${v.lugar})` : null,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .concat(". ¿Me confirmas?")
+    .replace(/\.\./g, ".");
   const whatsapp = enlaceWhatsApp(v.contacto_telefono, textoWhatsApp);
 
   return (

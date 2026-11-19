@@ -22,6 +22,8 @@ export function TarjetaVisitas({
   vacio = "Sin visitas.",
   mostrarFecha = false,
   verAgenda = false,
+  // En la ficha del contacto su nombre sobra: se muestra el inmueble.
+  ocultarContacto = false,
   className,
 }) {
   const { espacio } = useContext(WorkspaceContext);
@@ -74,7 +76,9 @@ export function TarjetaVisitas({
               <span className={cn("mt-1.5 size-2 shrink-0 rounded-full", est.punto)} aria-hidden />
               <span className="grid min-w-0 flex-1 gap-0.5">
                 <span className="flex flex-wrap justify-between gap-x-3">
-                  <span className="truncate font-medium">{v.contacto_nombre}</span>
+                  <span className="truncate font-medium">
+                    {ocultarContacto ? (v.propiedad_titulo ?? "Visita sin inmueble") : v.contacto_nombre}
+                  </span>
                   <span className="text-muted-foreground text-xs tabular-nums">
                     {mostrarFecha || claveDia(v.inicio_at) !== hoy() ? `${formatoFecha(v.inicio_at)} · ` : ""}
                     {textoRangoHora(v.inicio_at, v.fin_at)}
@@ -82,7 +86,8 @@ export function TarjetaVisitas({
                 </span>
                 <span className="text-muted-foreground truncate text-xs">
                   {est.etiqueta}
-                  {v.propiedad_titulo ? ` · ${v.propiedad_titulo}` : ""}
+                  {!ocultarContacto && v.propiedad_titulo ? ` · ${v.propiedad_titulo}` : ""}
+                  {ocultarContacto && v.agente_nombre ? ` · ${v.agente_nombre}` : ""}
                 </span>
               </span>
             </button>

@@ -39,6 +39,7 @@ import {
   horaInput,
   hoy,
   isoBogota,
+  proximaMediaHora,
   textoRangoHora,
 } from "@/utils/agenda.js";
 import { mostrarTelefono } from "@/utils/telefono.js";
@@ -75,7 +76,8 @@ function estadoInicial(visita, inicial) {
     contacto: inicial?.contacto ?? null,
     propiedad: inicial?.propiedad ?? null,
     fecha: inicial?.fecha ?? hoy(),
-    hora: inicial?.hora ?? "10:00",
+    // Hoy sin hora elegida → la siguiente media hora (no una que ya pasó).
+    hora: inicial?.hora ?? ((inicial?.fecha ?? hoy()) === hoy() ? proximaMediaHora() : "10:00"),
     duracion: "60",
     agente: "",
     lugar: "",

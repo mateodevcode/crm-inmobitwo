@@ -9,6 +9,7 @@ const TITULOS = {
   "/leads": "Leads",
   "/contactos": "Contactos",
   "/pipeline": "Pipeline",
+  "/agenda": "Agenda",
   "/tareas": "Tareas",
   "/propiedades": "Propiedades",
   "/equipo": "Equipo",
@@ -29,7 +30,9 @@ export default function CrmLayout() {
       }}
     >
       <AppSidebar variant="inset" />
-      <SidebarInset>
+      {/* min-w-0: sin esto, contenido ancho (grilla de la agenda, tablas)
+          estira el main y la página entera se desborda en horizontal. */}
+      <SidebarInset className="min-w-0">
         <SiteHeader titulo={titulo} />
         <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
           <Outlet />

@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table.jsx";
 import { formatoFecha } from "@/utils/fechas.js";
 import { useDashboard } from "@/features/dashboard/hooks/useDashboard.js";
+import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
+import { hoy } from "@/utils/agenda.js";
 
 export default function DashboardPage() {
   const { data, isLoading, isError, refetch } = useDashboard();
@@ -110,38 +112,46 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Últimos leads</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contacto</TableHead>
-                <TableHead>Propiedad</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead>Fecha</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {(data.ultimosLeads ?? []).map((l) => (
-                <TableRow key={l.id}>
-                  <TableCell>{l.nombre || l.email || l.telefono || `Lead ${l.id}`}</TableCell>
-                  <TableCell>{l.propiedad_titulo}</TableCell>
-                  <TableCell>
-                    <EstadoBadge estado={l.estado} />
-                  </TableCell>
-                  <TableCell>{formatoFecha(l.created_at)}</TableCell>
+      <div className="grid gap-4 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
+          <CardHeader>
+            <CardTitle>Últimos leads</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Contacto</TableHead>
+                  <TableHead>Propiedad</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Fecha</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          {(data.ultimosLeads ?? []).length === 0 ? (
-            <p className="text-muted-foreground pt-2 text-sm">Sin leads aún.</p>
-          ) : null}
-        </CardContent>
-      </Card>
+              </TableHeader>
+              <TableBody>
+                {(data.ultimosLeads ?? []).map((l) => (
+                  <TableRow key={l.id}>
+                    <TableCell>{l.nombre || l.email || l.telefono || `Lead ${l.id}`}</TableCell>
+                    <TableCell>{l.propiedad_titulo}</TableCell>
+                    <TableCell>
+                      <EstadoBadge estado={l.estado} />
+                    </TableCell>
+                    <TableCell>{formatoFecha(l.created_at)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {(data.ultimosLeads ?? []).length === 0 ? (
+              <p className="text-muted-foreground pt-2 text-sm">Sin leads aún.</p>
+            ) : null}
+          </CardContent>
+        </Card>
+        <TarjetaVisitas
+          titulo="Visitas de hoy"
+          filtros={{ desde: hoy(), hasta: hoy() }}
+          vacio="No tienes visitas hoy."
+          verAgenda
+        />
+      </div>
     </>
   );
 }

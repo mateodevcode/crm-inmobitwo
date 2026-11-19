@@ -25,6 +25,7 @@ import {
   obtenerContacto,
 } from "@/features/contactos/api.js";
 import { completarTarea, crearTarea, obtenerTareas } from "@/features/tareas/api.js";
+import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
 
 const TIPOS_ACTIVIDAD = ["nota", "llamada", "email", "whatsapp", "visita", "reunion"];
 
@@ -178,6 +179,14 @@ export default function ContactoDetallePage() {
           </CardContent>
         </Card>
       </div>
+
+      <TarjetaVisitas
+        titulo="Visitas"
+        filtros={{ contacto_id: id }}
+        inicialNueva={{ contacto: { id: c.id, etiqueta: c.nombre } }}
+        vacio="Este contacto aún no tiene visitas."
+        mostrarFecha
+      />
 
       <Card>
         <CardHeader>

@@ -3,6 +3,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import { Button } from "@/components/ui/button.jsx";
+import { sanitizarHtml } from "@/lib/sanitizarHtml.js";
 
 // Editor visual (igual que el portal): negrita, cursiva, títulos,
 // listas, enlaces + vista previa. Guarda HTML.
@@ -14,7 +15,11 @@ export function DescriptionEditor({ value, onChange }) {
       StarterKit.configure({
         heading: { levels: [2, 3] },
       }),
-      Link.configure({ openOnClick: false }),
+      Link.configure({
+        openOnClick: false,
+        // Solo http(s), mailto y tel: bloquea enlaces javascript:/data:
+        isAllowedUri: (url) => /^(https?:|mailto:|tel:)/i.test(url ?? ""),
+      }),
     ],
     content: value || "",
     onUpdate: ({ editor: e }) => onChange(e.getHTML()),
@@ -66,7 +71,7 @@ export function DescriptionEditor({ value, onChange }) {
         </Button>
       </div>
       {showPreview ? (
-        <div className="min-h-40 p-4 text-sm" dangerouslySetInnerHTML={{ __html: value || "" }} />
+        <div className="min-h-40 p-4 text-sm" dangerouslySetInnerHTML={{ __html: sanitizarHtml(value) }} />
       ) : (
         <EditorContent editor={editor} className="min-h-40 p-4 text-sm focus:outline-none [&_h2]:text-lg [&_h2]:font-bold [&_h3]:font-bold [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5 [&_a]:text-blue-600 [&_a]:underline" />
       )}

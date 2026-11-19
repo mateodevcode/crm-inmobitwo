@@ -39,15 +39,16 @@ layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outle
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
-features/       auth/ dashboard/ leads/ contactos/ pipeline/ tareas/ propiedades/ equipo/ ajustes/
+features/       auth/ dashboard/ leads/ contactos/ pipeline/ agenda/ tareas/ propiedades/ equipo/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
-lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono
+lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono, agenda.js (días/horas en Bogotá, UTC−5 fijo)
+lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerouslySetInnerHTML
 ```
 
 ## Rutas
 
 `/login` · `/` Panel · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
-`/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
+`/agenda` (`?visita=ID` abre el detalle) · `/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
 
 ## Sesión y espacio
 
@@ -76,3 +77,20 @@ lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono
 
 - Commits pequeños por paso. Tras modificar código: `graphify update .` (según AGENTS.md raíz).
 - No secretos en código ni logs; textos personales nunca en logs.
+
+## Agenda y visitas (`features/agenda/`)
+
+- API `/crm/visitas` (listar por rango `desde`/`hasta` en días de Bogotá, crear, editar,
+  `POST /:id/estado`, borrar). Un 409 trae `data.choques` → la UI ofrece "Agendar igualmente" (`forzar`).
+- Fechas: siempre con `utils/agenda.js` (`isoBogota`, `claveDia`, `minutosDelDia`…), nunca con
+  la zona del navegador. Al backend se manda ISO con `-05:00`.
+- Al editar, enviar `inicio_at`/`duracion_min`/`recordatorio_minutos` solo si cambiaron: el backend
+  trata un cambio de horario como reprogramación (vuelve a `programada`, reinicia el recordatorio).
+- `TarjetaVisitas` es reutilizable (panel: visitas de hoy; ficha de contacto: historial con `ocultarContacto`).
+- Estados y colores en `features/agenda/estados.js`.
+
+## Pruebas locales
+
+- `.claude/launch.json` (raíz del monorepo): `backend-crons-apagados` (puerto 3001, con
+  `PAGOS_CRON_ENABLED`, `VISITAS_CRON_ENABLED` y `CRON_BUSQUEDAS_ENABLED` en `false`) y `crm` (5173).
+- **El `.env` del backend apunta a la BD de producción**: no crear datos sin permiso y limpiarlos al terminar.

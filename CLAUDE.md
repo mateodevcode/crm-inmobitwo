@@ -39,7 +39,7 @@ layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outle
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
-features/       auth/ dashboard/ leads/ contactos/ pipeline/ agenda/ tareas/ propiedades/ equipo/ ajustes/
+features/       auth/ dashboard/ leads/ contactos/ pipeline/ agenda/ demandas/ tareas/ propiedades/ equipo/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
 lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono, agenda.js (días/horas en Bogotá, UTC−5 fijo)
 lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerouslySetInnerHTML
@@ -48,7 +48,7 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 ## Rutas
 
 `/login` · `/` Panel · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
-`/agenda` (`?visita=ID` abre el detalle) · `/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
+`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
 
 ## Sesión y espacio
 
@@ -89,8 +89,21 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 - `TarjetaVisitas` es reutilizable (panel: visitas de hoy; ficha de contacto: historial con `ocultarContacto`).
 - Estados y colores en `features/agenda/estados.js`.
 
+## Demandas y cruce (`features/demandas/`)
+
+- API `/crm/demandas` (+ `/:id/coincidencias?alcance=cartera|portal`, `/:id/vistas`,
+  `PUT|DELETE /:id/propiedades/:propiedadId` con `estado` enviada|descartada) y
+  `/crm/propiedades/:id/demandas` (interesados). Catálogos livianos: `/crm/catalogos/ciudades?q=`,
+  `/crm/catalogos/barrios?city_id=`; tipos de inmueble desde `/catalogos/tipos-inmueble`.
+- La demanda devuelve `ciudades`, `barrios` y `tipos` como `[{ id, nombre }]`.
+- El cruce acepta hasta 10 % sobre el precio máximo (`sobre_presupuesto`). "Portal" excluye la
+  cartera propia y solo trae publicados. Visita desde una coincidencia: solo cartera.
+- Componentes: `DemandasPage`, `DemandaDialog`, `Coincidencias`, `TarjetaDemandas` (ficha de
+  contacto), `InteresadosSheet` (tabla de propiedades). Textos en `criterios.js`.
+
 ## Pruebas locales
 
 - `.claude/launch.json` (raíz del monorepo): `backend-crons-apagados` (puerto 3001, con
-  `PAGOS_CRON_ENABLED`, `VISITAS_CRON_ENABLED` y `CRON_BUSQUEDAS_ENABLED` en `false`) y `crm` (5173).
+  `PAGOS_CRON_ENABLED`, `VISITAS_CRON_ENABLED`, `DEMANDAS_CRON_ENABLED` y `CRON_BUSQUEDAS_ENABLED`
+  en `false`, vía `.claude/crons-off.env`) y `crm` (5173).
 - **El `.env` del backend apunta a la BD de producción**: no crear datos sin permiso y limpiarlos al terminar.

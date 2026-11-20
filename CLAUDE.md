@@ -110,6 +110,17 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 - Documentos privados: subir con `apiBackendFormData` (campo `archivo` + `tipo`), descargar SOLO con
   `descargarDocumento()` (fetch con token → blob). Nunca hay URL pública.
 
+## Cartera (`features/propiedades/`)
+
+- `GET /crm/propiedades` trae `ofertas` (`[{ operacion, precio, estado }]`, estado = listing_status) y
+  `captacion`; filtros `estado` (publicado|no_publicado) y `oferta` (active|sold|rented|inactive|sin_oferta).
+- Masivo: `POST /crm/propiedades/acciones { ids, accion: publicar|pausar }` → `{ actualizados, omitidos }`.
+- Duplicar: `POST /crm/propiedades/:id/duplicar` (sin fotos ni ubicación oculta; queda sin publicar).
+- Vendido/arrendado/reactivar: endpoint existente `PUT /propiedades/:id/ofertas/:operacion { listing_status }`
+  (venta→sold, alquiler→rented). No existe "reservado".
+- Rendimiento: `GET /crm/propiedades/:id/rendimiento` (`RendimientoSheet`). Ficha imprimible:
+  `/propiedades/:id/ficha` (fuera del layout). CSV en `cartera.js` (BOM, `;`, sin fórmulas).
+
 ## Pruebas locales
 
 - `.claude/launch.json` (raíz del monorepo): `backend-crons-apagados` (puerto 3001, con

@@ -16,6 +16,7 @@ import {
 import { formatoFecha } from "@/utils/fechas.js";
 import { useDashboard } from "@/features/dashboard/hooks/useDashboard.js";
 import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
+import { TarjetaCaptaciones } from "@/features/captaciones/components/TarjetaCaptaciones.jsx";
 import { hoy } from "@/utils/agenda.js";
 
 export default function DashboardPage() {
@@ -152,6 +153,13 @@ export default function DashboardPage() {
           verAgenda
         />
       </div>
+
+      <TarjetaCaptaciones
+        titulo="Mandatos por vencer (30 días)"
+        filtros={{ vence_en_dias: 30 }}
+        vacio="Ningún mandato vence en los próximos 30 días."
+        ocultarSiVacia
+      />
     </>
   );
 }

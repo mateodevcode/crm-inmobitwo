@@ -9,6 +9,7 @@ import { DataTable } from "@/components/comunes/DataTable.jsx";
 import { MoneyText } from "@/components/comunes/MoneyText.jsx";
 import { ConfirmDialog } from "@/components/comunes/ConfirmDialog.jsx";
 import { InteresadosSheet } from "@/features/demandas/components/InteresadosSheet.jsx";
+import { CaptacionSheet } from "@/features/captaciones/components/CaptacionSheet.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import {
@@ -33,6 +34,7 @@ export default function PropiedadesPage() {
   const [busqueda, setBusqueda] = useState("");
   const [eliminar, setEliminar] = useState(null);
   const [interesados, setInteresados] = useState(null);
+  const [captacion, setCaptacion] = useState(null);
 
   const clave = ["crm-propiedades", espacio, pagina, estado, busqueda];
   const { data, isLoading } = useQuery({
@@ -150,6 +152,9 @@ export default function PropiedadesPage() {
                 <button type="button" className="underline" onClick={() => setInteresados(p)}>
                   Interesados
                 </button>
+                <button type="button" className="underline" onClick={() => setCaptacion(p)}>
+                  Captación
+                </button>
                 <button type="button" className="underline" onClick={() => mEstado.mutate(p)}>
                   {p.estado === "publicado" ? "Pausar" : "Publicar"}
                 </button>
@@ -177,6 +182,7 @@ export default function PropiedadesPage() {
         onConfirmar={() => mEliminar.mutate(eliminar.id)}
       />
       <InteresadosSheet propiedad={interesados} onCerrar={() => setInteresados(null)} />
+      <CaptacionSheet propiedad={captacion} onCerrar={() => setCaptacion(null)} />
     </>
   );
 }

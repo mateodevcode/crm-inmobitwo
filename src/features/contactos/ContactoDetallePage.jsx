@@ -27,6 +27,7 @@ import {
 import { completarTarea, crearTarea, obtenerTareas } from "@/features/tareas/api.js";
 import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
 import { TarjetaDemandas } from "@/features/demandas/components/TarjetaDemandas.jsx";
+import { TarjetaCaptaciones } from "@/features/captaciones/components/TarjetaCaptaciones.jsx";
 
 const TIPOS_ACTIVIDAD = ["nota", "llamada", "email", "whatsapp", "visita", "reunion"];
 
@@ -182,6 +183,14 @@ export default function ContactoDetallePage() {
       </div>
 
       <TarjetaDemandas contacto={c} />
+
+      <TarjetaCaptaciones
+        titulo="Inmuebles que es propietario"
+        filtros={{ propietario_id: c.id }}
+        vacio=""
+        ocultarPropietario
+        ocultarSiVacia
+      />
 
       <TarjetaVisitas
         titulo="Visitas"

@@ -39,7 +39,7 @@ layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outle
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
-features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ importacion/ ajustes/
+features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ importacion/ notificaciones/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
 lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono, agenda.js (días/horas en Bogotá, UTC−5 fijo)
 lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerouslySetInnerHTML
@@ -48,7 +48,7 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 ## Rutas
 
 `/login` · `/` Panel · `/bandeja` · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
-`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin; `?tab=miembros|reparto|metas`) · `/reportes` · `/importar` (`?tipo=contactos|inmuebles`) · `/ajustes` · `*`.
+`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin; `?tab=miembros|reparto|metas`) · `/reportes` · `/importar` (`?tipo=contactos|inmuebles`) · `/notificaciones` · `/ajustes` · `*`.
 
 ## Sesión y espacio
 
@@ -159,9 +159,18 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 - "Actualizar" solo completa datos vacíos y suma etiquetas; un agente no toca contactos de otro agente.
 - Inmuebles: borradores `no_publicado`, sin fotos; ciudad por nombre (+ departamento si hay varias).
 
+## Avisos (`features/notificaciones/`)
+
+- Campana en `SiteHeader` (`CampanaNotificaciones`): contador cada 60 s y al volver a la pestaña,
+  últimos 8 en un popover; página `/notificaciones` con "Sin leer" y "Ver anteriores" (cursor `antes`).
+- API `/crm/notificaciones` (`?solo_no_leidas=1&limite=&antes=`) → `{ items, hay_mas, no_leidas, otros_espacios }`,
+  `/contador`, `POST /:id/leida`, `POST /leer-todas`. Siempre del espacio activo (personal = sin organización).
+- Abrir un aviso lo marca leído y navega a su `url` (ruta interna). Todas las claves de query empiezan por `crm-notif`.
+- Iconos por tipo en `tipos.js` (`IconoTipo`).
+
 ## Pruebas locales
 
 - `.claude/launch.json` (raíz del monorepo): `backend-crons-apagados` (puerto 3001, con
-  `PAGOS_CRON_ENABLED`, `VISITAS_CRON_ENABLED`, `DEMANDAS_CRON_ENABLED` y `CRON_BUSQUEDAS_ENABLED`
+  `PAGOS_CRON_ENABLED`, `VISITAS_CRON_ENABLED`, `DEMANDAS_CRON_ENABLED`, `NOTIFICACIONES_CRON_ENABLED` y `CRON_BUSQUEDAS_ENABLED`
   en `false`, vía `.claude/crons-off.env`) y `crm` (5173).
 - **El `.env` del backend apunta a la BD de producción**: no crear datos sin permiso y limpiarlos al terminar.

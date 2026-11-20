@@ -1,3 +1,4 @@
+import { CampanaNotificaciones } from "@/features/notificaciones/components/CampanaNotificaciones.jsx";
 import { Separator } from "@/components/ui/separator.jsx";
 import { SidebarTrigger } from "@/components/ui/sidebar.jsx";
 
@@ -11,6 +12,9 @@ export function SiteHeader({ titulo }) {
           className="mx-2 data-[orientation=vertical]:h-4"
         />
         <h1 className="text-base font-medium">{titulo ?? "CRM"}</h1>
+        <div className="ml-auto flex items-center gap-1">
+          <CampanaNotificaciones />
+        </div>
       </div>
     </header>
   );

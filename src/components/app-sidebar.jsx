@@ -38,6 +38,7 @@ import {
   Settings2Icon,
   MessagesSquareIcon,
   CalendarDaysIcon,
+  SearchCheckIcon,
 } from "lucide-react";
 import Logo from "./comunes/Logo";
 
@@ -47,6 +48,7 @@ const NAV_PRINCIPAL = [
   { title: "Contactos", url: "/contactos", icon: ContactRoundIcon },
   { title: "Pipeline", url: "/pipeline", icon: KanbanIcon },
   { title: "Agenda", url: "/agenda", icon: CalendarDaysIcon },
+  { title: "Demandas", url: "/demandas", icon: SearchCheckIcon },
   { title: "Tareas", url: "/tareas", icon: ListChecksIcon },
   { title: "Propiedades", url: "/propiedades", icon: Building2Icon },
   { title: "Reportes", url: "/reportes", icon: ChartBarIcon },

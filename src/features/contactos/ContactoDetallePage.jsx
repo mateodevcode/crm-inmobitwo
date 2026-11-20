@@ -26,6 +26,7 @@ import {
 } from "@/features/contactos/api.js";
 import { completarTarea, crearTarea, obtenerTareas } from "@/features/tareas/api.js";
 import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
+import { TarjetaDemandas } from "@/features/demandas/components/TarjetaDemandas.jsx";
 
 const TIPOS_ACTIVIDAD = ["nota", "llamada", "email", "whatsapp", "visita", "reunion"];
 
@@ -179,6 +180,8 @@ export default function ContactoDetallePage() {
           </CardContent>
         </Card>
       </div>
+
+      <TarjetaDemandas contacto={c} />
 
       <TarjetaVisitas
         titulo="Visitas"

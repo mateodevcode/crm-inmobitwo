@@ -40,11 +40,13 @@ import {
   CalendarDaysIcon,
   SearchCheckIcon,
   KeyRoundIcon,
+  InboxIcon,
 } from "lucide-react";
 import Logo from "./comunes/Logo";
 
 const NAV_PRINCIPAL = [
   { title: "Panel", url: "/", icon: LayoutDashboardIcon },
+  { title: "Bandeja", url: "/bandeja", icon: InboxIcon },
   { title: "Leads", url: "/leads", icon: UsersIcon },
   { title: "Contactos", url: "/contactos", icon: ContactRoundIcon },
   { title: "Pipeline", url: "/pipeline", icon: KanbanIcon },

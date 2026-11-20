@@ -23,6 +23,7 @@ import AgendaPage from "@/features/agenda/AgendaPage.jsx";
 import DemandasPage from "@/features/demandas/DemandasPage.jsx";
 import CaptacionesPage from "@/features/captaciones/CaptacionesPage.jsx";
 import FichaPage from "@/features/propiedades/FichaPage.jsx";
+import BandejaPage from "@/features/bandeja/BandejaPage.jsx";
 import PropiedadesPage from "@/features/propiedades/PropiedadesPage.jsx";
 import EquipoPage from "@/features/equipo/EquipoPage.jsx";
 import ReportesPage from "@/features/reportes/ReportesPage.jsx";
@@ -103,6 +104,7 @@ export default function AppRouter() {
           <Route path="contactos/:id" element={<ContactoDetallePage />} />
           <Route path="pipeline" element={<PipelinePage />} />
           <Route path="tareas" element={<TareasPage />} />
+          <Route path="bandeja" element={<BandejaPage />} />
           <Route path="agenda" element={<AgendaPage />} />
           <Route path="demandas" element={<DemandasPage />} />
           <Route path="captaciones" element={<CaptacionesPage />} />

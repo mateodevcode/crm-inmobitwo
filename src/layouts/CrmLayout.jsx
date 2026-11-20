@@ -9,6 +9,7 @@ const TITULOS = {
   "/leads": "Leads",
   "/contactos": "Contactos",
   "/pipeline": "Pipeline",
+  "/bandeja": "Bandeja",
   "/agenda": "Agenda",
   "/demandas": "Demandas",
   "/captaciones": "Captaciones",

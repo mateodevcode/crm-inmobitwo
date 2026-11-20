@@ -8,7 +8,7 @@ export async function obtenerEtapas() {
 
 export async function obtenerOportunidades(filtros = {}) {
   const params = new URLSearchParams();
-  for (const k of ["asignado", "propiedad", "valorMin", "valorMax"]) {
+  for (const k of ["asignado", "propiedad", "valorMin", "valorMax", "contacto_id"]) {
     if (filtros[k]) params.set(k, filtros[k]);
   }
   const res = await apiBackend(`/crm/oportunidades?${params.toString()}`);

@@ -144,11 +144,17 @@ function FormularioVisita({ visita, inicial, onCerrar, onGuardada }) {
       };
       return editando
         ? actualizarVisita(visita.id, datos)
-        : crearVisita({ ...datos, contacto_id: f.contacto.id });
+        : crearVisita({
+            ...datos,
+            contacto_id: f.contacto.id,
+            ...(inicial?.oportunidad_id ? { oportunidad_id: Number(inicial.oportunidad_id) } : {}),
+          });
     },
     onSuccess: (v) => {
       toast.success(editando ? "Visita actualizada." : "Visita agendada.");
       queryClient.invalidateQueries({ queryKey: ["crm-visitas"] });
+      // El pipeline muestra la próxima visita de cada oportunidad.
+      queryClient.invalidateQueries({ queryKey: ["crm-oportunidades"] });
       onGuardada?.(v);
       onCerrar();
     },

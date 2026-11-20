@@ -37,7 +37,7 @@ context/        AuthProvider (usuario, estaAutenticado, cargandoSesion, cerrarSe
 router/         AppRouter.jsx + guards.jsx (RutaPrivada, RutaPublica, RutaAdminOrg)
 layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outlet)
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
-components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
+components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header (campana de avisos)
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
 features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ importacion/ notificaciones/ habeas/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
@@ -176,6 +176,19 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
   SUPRIMIR). Rectificar = editar el contacto (el backend audita qué campos cambiaron).
 - Registro: `GET /crm/habeas-data/registro?contacto_id=&pagina=` → página `/habeas-data` (enlace en Ajustes).
   Sin datos personales: solo acción, actor, id del contacto y conteos (`textoDetalle` en `textos.js`).
+
+## Panel, ficha y pipeline (pulido Fase 3)
+
+- `GET /crm/dashboard` trae además `crm: { contactos: { total, nuevos_30, sin_autorizacion }, oportunidades:
+  { abiertas, valor_abierto, ganadas_mes }, tareas: { vencidas, hoy, pendientes } }` (tareas = las mías) y la serie
+  de leads en días de Bogotá. Cada indicador del panel enlaza a su módulo.
+- Tareas: `GET /crm/tareas` acepta `contacto_id`, `oportunidad_id` e `incluir_completadas=1`; `POST` acepta
+  `oportunidad_id` (hereda el contacto). Componente `features/tareas/components/TarjetaTareas` (ficha y pipeline).
+- Oportunidades: `GET /crm/oportunidades?contacto_id=` devuelve todas (abiertas, ganadas, perdidas); el listado
+  normal trae `proxima_visita_at`, `tareas_pendientes`, `tareas_vencidas`. `TarjetaOportunidades` en la ficha.
+- Visitas: filtro `oportunidad_id`; `VisitaDialog` acepta `inicial.oportunidad_id`.
+- Pipeline: `/pipeline?oportunidad=ID` abre el detalle (visitas, tareas y cierre); `?crear=CONTACTO` abre el alta.
+- Ficha de contacto: WhatsApp, llamar y correo en la cabecera; textos de tipo, origen y actividad en español.
 
 ## Pruebas locales
 

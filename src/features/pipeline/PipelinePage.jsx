@@ -1,4 +1,5 @@
 import { useContext, useMemo, useState } from "react";
+import { CalendarDaysIcon, ListChecksIcon } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   DndContext,
@@ -46,6 +47,9 @@ import {
 } from "@/components/ui/sheet.jsx";
 import { Skeleton } from "@/components/ui/skeleton.jsx";
 import { obtenerContactos } from "@/features/contactos/api.js";
+import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
+import { TarjetaTareas } from "@/features/tareas/components/TarjetaTareas.jsx";
+import { textoDiaCorto, claveDia, textoHora } from "@/utils/agenda.js";
 import {
   cerrarOportunidad,
   crearOportunidad,
@@ -75,6 +79,25 @@ function Tarjeta({ op, onAbrir }) {
         <MoneyText valor={op.valor} />
         <span>{op.probabilidad}%</span>
       </p>
+      {op.proxima_visita_at || op.tareas_pendientes ? (
+        <p className="text-muted-foreground mt-2 flex flex-wrap gap-x-3 gap-y-1 border-t pt-2 text-xs">
+          {op.proxima_visita_at ? (
+            <span className="flex items-center gap-1" title="Próxima visita">
+              <CalendarDaysIcon className="size-3.5" aria-hidden="true" />
+              {textoDiaCorto(claveDia(op.proxima_visita_at))} {textoHora(op.proxima_visita_at)}
+            </span>
+          ) : null}
+          {op.tareas_pendientes ? (
+            <span
+              className={`flex items-center gap-1 ${op.tareas_vencidas ? "text-destructive" : ""}`}
+              title={op.tareas_vencidas ? `${op.tareas_vencidas} vencidas` : "Tareas pendientes"}
+            >
+              <ListChecksIcon className="size-3.5" aria-hidden="true" />
+              {op.tareas_pendientes} {op.tareas_pendientes === 1 ? "tarea" : "tareas"}
+            </span>
+          ) : null}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -107,7 +130,8 @@ export default function PipelinePage() {
   const [params] = useSearchParams();
   const [filtros, setFiltros] = useState({ valorMin: "", valorMax: "", propiedad: "" });
   const [aplicados, setAplicados] = useState({ valorMin: "", valorMax: "", propiedad: "" });
-  const [detalle, setDetalle] = useState(null);
+  // ?oportunidad=ID (desde la ficha del contacto) abre su detalle.
+  const [detalleId, setDetalleId] = useState(() => params.get("oportunidad"));
   const [crear, setCrear] = useState(params.get("crear") ? { contacto_id: params.get("crear"), titulo: "", valor: "" } : null);
   const [motivo, setMotivo] = useState("");
 
@@ -146,6 +170,9 @@ export default function PipelinePage() {
 
   const encontrar = (id) => (opsQ.data ?? []).find((o) => Number(o.id) === Number(id));
 
+  // El detalle sigue a los datos frescos (próxima visita, tareas).
+  const detalleActual = detalleId ? (encontrar(detalleId) ?? null) : null;
+
   const onDragEnd = (e) => {
     const { active, over } = e;
     if (!over) return;
@@ -179,7 +206,7 @@ export default function PipelinePage() {
     mutationFn: ({ id, estado }) => cerrarOportunidad(id, estado, estado === "perdida" ? motivo : null),
     onSuccess: () => {
       toast.success("Oportunidad cerrada.");
-      setDetalle(null);
+      setDetalleId(null);
       setMotivo("");
       queryClient.invalidateQueries({ queryKey: clave });
     },
@@ -219,7 +246,7 @@ export default function PipelinePage() {
     <>
       <PageHeader
         titulo="Pipeline"
-        descripcion="Arrastre las tarjetas entre etapas."
+        descripcion="Arrastra las tarjetas entre etapas. Abre una para agendar visitas y tareas."
         acciones={<Button onClick={() => setCrear({ contacto_id: "", titulo: "", valor: "" })}>Nueva oportunidad</Button>}
       />
       <form
@@ -258,29 +285,53 @@ export default function PipelinePage() {
           {etapas.map((et) => {
             const ops = porEtapa[et.id] ?? [];
             const total = ops.reduce((s, o) => s + (Number(o.valor) || 0), 0);
-            return <Columna key={et.id} etapa={et} ops={ops} total={total} onAbrir={setDetalle} />;
+            return <Columna key={et.id} etapa={et} ops={ops} total={total} onAbrir={(op) => setDetalleId(op.id)} />;
           })}
         </div>
       </DndContext>
 
-      <Sheet open={!!detalle} onOpenChange={(v) => !v && setDetalle(null)}>
-        <SheetContent>
-          {detalle ? (
+      <Sheet open={!!detalleActual} onOpenChange={(v) => !v && setDetalleId(null)}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+          {detalleActual ? (
             <>
               <SheetHeader>
-                <SheetTitle>{detalle.titulo}</SheetTitle>
+                <SheetTitle>{detalleActual.titulo}</SheetTitle>
               </SheetHeader>
-              <div className="grid gap-3 pt-4 text-sm">
+              <div className="grid gap-3 px-4 pb-6 text-sm">
                 <p>
                   <span className="text-muted-foreground">Contacto: </span>
-                  <Link to={`/contactos/${detalle.contacto_id}`} className="underline">
-                    {detalle.contacto_nombre}
+                  <Link to={`/contactos/${detalleActual.contacto_id}`} className="underline">
+                    {detalleActual.contacto_nombre}
                   </Link>
                 </p>
-                <p><span className="text-muted-foreground">Valor: </span><MoneyText valor={detalle.valor} /></p>
-                <p><span className="text-muted-foreground">Probabilidad: </span>{detalle.probabilidad}%</p>
+                {detalleActual.propiedad_titulo ? (
+                  <p><span className="text-muted-foreground">Inmueble: </span>{detalleActual.propiedad_titulo}</p>
+                ) : null}
+                <p><span className="text-muted-foreground">Etapa: </span>{detalleActual.etapa_nombre}</p>
+                <p><span className="text-muted-foreground">Valor: </span><MoneyText valor={detalleActual.valor} /></p>
+                <p><span className="text-muted-foreground">Probabilidad: </span>{detalleActual.probabilidad}%</p>
+                <TarjetaVisitas
+                  titulo="Visitas"
+                  filtros={{ oportunidad_id: detalleActual.id }}
+                  inicialNueva={{
+                    contacto: { id: detalleActual.contacto_id, etiqueta: detalleActual.contacto_nombre },
+                    propiedad: detalleActual.propiedad_id
+                      ? { id: detalleActual.propiedad_id, etiqueta: detalleActual.propiedad_titulo }
+                      : null,
+                    oportunidad_id: detalleActual.id,
+                  }}
+                  vacio="Sin visitas para esta oportunidad."
+                  mostrarFecha
+                  ocultarContacto
+                />
+                <TarjetaTareas
+                  titulo="Tareas"
+                  filtros={{ oportunidadId: detalleActual.id }}
+                  nueva={{ oportunidad_id: Number(detalleActual.id) }}
+                />
+                <p className="font-medium">Cerrar la oportunidad</p>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => cerrar.mutate({ id: detalle.id, estado: "ganada" })}>
+                  <Button size="sm" onClick={() => cerrar.mutate({ id: detalleActual.id, estado: "ganada" })}>
                     Cerrar ganada
                   </Button>
                 </div>
@@ -293,7 +344,7 @@ export default function PipelinePage() {
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => cerrar.mutate({ id: detalle.id, estado: "perdida" })}
+                    onClick={() => cerrar.mutate({ id: detalleActual.id, estado: "perdida" })}
                   >
                     Cerrar perdida
                   </Button>

@@ -1,9 +1,12 @@
 import { apiBackend } from "@/api/apiBackend.js";
 
-export async function obtenerTareas({ pagina, limite, vista, asignado }) {
+export async function obtenerTareas({ pagina, limite, vista, asignado, contactoId, oportunidadId, incluirCompletadas }) {
   const params = new URLSearchParams({ pagina: String(pagina), limite: String(limite) });
   if (vista) params.set("vista", vista);
   if (asignado) params.set("asignado", asignado);
+  if (contactoId) params.set("contacto_id", String(contactoId));
+  if (oportunidadId) params.set("oportunidad_id", String(oportunidadId));
+  if (incluirCompletadas) params.set("incluir_completadas", "1");
   const res = await apiBackend(`/crm/tareas?${params.toString()}`);
   if (!res.success) throw new Error(res.error || "No se pudieron cargar las tareas.");
   return res;

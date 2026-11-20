@@ -91,7 +91,7 @@ export function mapearEncabezados(encabezados, campos) {
 
 // CSV con separador ; , o tabulador (se detecta en la primera línea), comillas y saltos dentro de comillas.
 export function parsearCsv(texto) {
-  const t = String(texto).replace(/^﻿/, "");
+  const t = String(texto).replace(/^\uFEFF/, "");
   const primera = t.slice(0, t.search(/\r?\n|$/));
   const cuenta = (c) => primera.split(c).length - 1;
   const sep = [";", ",", "\t"].sort((a, b) => cuenta(b) - cuenta(a))[0];

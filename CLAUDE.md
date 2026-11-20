@@ -48,7 +48,7 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 ## Rutas
 
 `/login` · `/` Panel · `/bandeja` · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
-`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
+`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin; `?tab=miembros|reparto|metas`) · `/reportes` · `/ajustes` · `*`.
 
 ## Sesión y espacio
 
@@ -129,6 +129,16 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 - Plantillas: `/crm/plantillas` (CRUD + `POST /:id/uso`), variables `{nombre}`, `{inmueble}`, `{agente}`,
   `{inmobiliaria}` reemplazadas en el cliente con `aplicarPlantilla()` (`plantillas.js`).
 - El chat reutiliza `features/mensajes/api.js` (mensajes, enviar, marcar leída).
+
+## Equipo (`features/equipo/`, solo espacio org)
+
+- Reparto: `GET|PUT /crm/equipo/reparto { modo: manual|rotacion, agentes: [ids en orden] }`,
+  `POST /crm/equipo/repartir-leads`. Con rotación, el admin que convierte un lead asigna al
+  siguiente agente; un agente se lo queda.
+- Metas: `GET /crm/equipo/metas?mes=aaaa-mm` (admin: todo el equipo; agente: solo él) y
+  `PUT /crm/equipo/metas { mes, usuario_id, metricas: { clave: objetivo|null } }`. Lo logrado se calcula
+  en el backend (visitas realizadas, captaciones, contactos nuevos, negocios ganados y su valor).
+- `FilaMetas` se reutiliza en el panel (`TarjetaMisMetas`).
 
 ## Pruebas locales
 

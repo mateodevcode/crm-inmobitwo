@@ -35,3 +35,36 @@ export async function reasignarMasivo(desde_id, hacia_id) {
   if (!res.success) throw new Error(res.error || "No se pudo reasignar.");
   return res.data;
 }
+
+// ── Reparto de leads y metas ─────────────────────────────────────
+const msg = (res, porDefecto) => (Array.isArray(res.error) ? res.error.join(" ") : res.error || porDefecto);
+
+export async function obtenerReparto() {
+  const res = await apiBackend("/crm/equipo/reparto");
+  if (!res.success) throw new Error(msg(res, "No se pudo cargar el reparto."));
+  return res.data;
+}
+
+export async function guardarReparto(datos) {
+  const res = await apiBackend("/crm/equipo/reparto", "PUT", datos);
+  if (!res.success) throw new Error(msg(res, "No se pudo guardar el reparto."));
+  return res.data;
+}
+
+export async function repartirLeads() {
+  const res = await apiBackend("/crm/equipo/repartir-leads", "POST");
+  if (!res.success) throw new Error(msg(res, "No se pudieron repartir los leads."));
+  return res.data;
+}
+
+export async function obtenerMetas(mes) {
+  const res = await apiBackend(`/crm/equipo/metas${mes ? `?mes=${mes}` : ""}`);
+  if (!res.success) throw new Error(msg(res, "No se pudieron cargar las metas."));
+  return res.data;
+}
+
+export async function guardarMetas(datos) {
+  const res = await apiBackend("/crm/equipo/metas", "PUT", datos);
+  if (!res.success) throw new Error(msg(res, "No se pudieron guardar las metas."));
+  return res.data;
+}

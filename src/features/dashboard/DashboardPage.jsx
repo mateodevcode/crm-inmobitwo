@@ -17,6 +17,7 @@ import { formatoFecha } from "@/utils/fechas.js";
 import { useDashboard } from "@/features/dashboard/hooks/useDashboard.js";
 import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
 import { TarjetaCaptaciones } from "@/features/captaciones/components/TarjetaCaptaciones.jsx";
+import { TarjetaMisMetas } from "@/features/equipo/components/TarjetaMisMetas.jsx";
 import { hoy } from "@/utils/agenda.js";
 
 export default function DashboardPage() {
@@ -153,6 +154,8 @@ export default function DashboardPage() {
           verAgenda
         />
       </div>
+
+      <TarjetaMisMetas />
 
       <TarjetaCaptaciones
         titulo="Mandatos por vencer (30 días)"

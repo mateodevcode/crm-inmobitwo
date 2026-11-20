@@ -1,40 +1,43 @@
 // src/router/AppRouter.jsx — rutas del CRM
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { RutaAdminOrg, RutaPrivada, RutaPublica, RutaSuperadmin } from "@/router/guards.jsx";
 import CrmLayout from "@/layouts/CrmLayout.jsx";
 import NotFound from "@/router/NotFound.jsx";
+import { CargandoPagina } from "@/router/CargandoPagina.jsx";
 import LoginPage from "@/features/auth/LoginPage.jsx";
-import GoogleCallbackPage from "@/features/auth/GoogleCallbackPage.jsx";
-import DashboardPage from "@/features/dashboard/DashboardPage.jsx";
-import PortadaPage from "@/features/portada/PortadaPage.jsx";
-import AdminPage from "@/features/admin/AdminPage.jsx";
-import DominiosPage from "@/features/dominios/DominiosPage.jsx";
-import UsuariosPage from "@/features/usuarios/UsuariosPage.jsx";
-import InmobiliariasPage from "@/features/inmobiliaria/InmobiliariasPage.jsx";
-import MensajesPage from "@/features/mensajes/MensajesPage.jsx";
-import WizardPage from "@/features/propiedades/wizard/WizardPage.jsx";
-import InmobiliariaPage from "@/features/inmobiliaria/InmobiliariaPage.jsx";
-import LeadsPage from "@/features/leads/LeadsPage.jsx";
-import ContactosPage from "@/features/contactos/ContactosPage.jsx";
-import ContactoDetallePage from "@/features/contactos/ContactoDetallePage.jsx";
-import PipelinePage from "@/features/pipeline/PipelinePage.jsx";
-import TareasPage from "@/features/tareas/TareasPage.jsx";
-import AgendaPage from "@/features/agenda/AgendaPage.jsx";
-import DemandasPage from "@/features/demandas/DemandasPage.jsx";
-import CaptacionesPage from "@/features/captaciones/CaptacionesPage.jsx";
-import FichaPage from "@/features/propiedades/FichaPage.jsx";
-import BandejaPage from "@/features/bandeja/BandejaPage.jsx";
-import PropiedadesPage from "@/features/propiedades/PropiedadesPage.jsx";
-import EquipoPage from "@/features/equipo/EquipoPage.jsx";
-import ReportesPage from "@/features/reportes/ReportesPage.jsx";
-import ImportarPage from "@/features/importacion/ImportarPage.jsx";
-import NotificacionesPage from "@/features/notificaciones/NotificacionesPage.jsx";
-import HabeasDataPage from "@/features/habeas/HabeasDataPage.jsx";
-import AjustesPage from "@/features/ajustes/AjustesPage.jsx";
+const GoogleCallbackPage = lazy(() => import("@/features/auth/GoogleCallbackPage.jsx"));
+const DashboardPage = lazy(() => import("@/features/dashboard/DashboardPage.jsx"));
+const PortadaPage = lazy(() => import("@/features/portada/PortadaPage.jsx"));
+const AdminPage = lazy(() => import("@/features/admin/AdminPage.jsx"));
+const DominiosPage = lazy(() => import("@/features/dominios/DominiosPage.jsx"));
+const UsuariosPage = lazy(() => import("@/features/usuarios/UsuariosPage.jsx"));
+const InmobiliariasPage = lazy(() => import("@/features/inmobiliaria/InmobiliariasPage.jsx"));
+const MensajesPage = lazy(() => import("@/features/mensajes/MensajesPage.jsx"));
+const WizardPage = lazy(() => import("@/features/propiedades/wizard/WizardPage.jsx"));
+const InmobiliariaPage = lazy(() => import("@/features/inmobiliaria/InmobiliariaPage.jsx"));
+const LeadsPage = lazy(() => import("@/features/leads/LeadsPage.jsx"));
+const ContactosPage = lazy(() => import("@/features/contactos/ContactosPage.jsx"));
+const ContactoDetallePage = lazy(() => import("@/features/contactos/ContactoDetallePage.jsx"));
+const PipelinePage = lazy(() => import("@/features/pipeline/PipelinePage.jsx"));
+const TareasPage = lazy(() => import("@/features/tareas/TareasPage.jsx"));
+const AgendaPage = lazy(() => import("@/features/agenda/AgendaPage.jsx"));
+const DemandasPage = lazy(() => import("@/features/demandas/DemandasPage.jsx"));
+const CaptacionesPage = lazy(() => import("@/features/captaciones/CaptacionesPage.jsx"));
+const FichaPage = lazy(() => import("@/features/propiedades/FichaPage.jsx"));
+const BandejaPage = lazy(() => import("@/features/bandeja/BandejaPage.jsx"));
+const PropiedadesPage = lazy(() => import("@/features/propiedades/PropiedadesPage.jsx"));
+const EquipoPage = lazy(() => import("@/features/equipo/EquipoPage.jsx"));
+const ReportesPage = lazy(() => import("@/features/reportes/ReportesPage.jsx"));
+const ImportarPage = lazy(() => import("@/features/importacion/ImportarPage.jsx"));
+const NotificacionesPage = lazy(() => import("@/features/notificaciones/NotificacionesPage.jsx"));
+const HabeasDataPage = lazy(() => import("@/features/habeas/HabeasDataPage.jsx"));
+const AjustesPage = lazy(() => import("@/features/ajustes/AjustesPage.jsx"));
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <Suspense fallback={<CargandoPagina />}>
       <Routes>
         <Route
           path="/login"
@@ -132,6 +135,7 @@ export default function AppRouter() {
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

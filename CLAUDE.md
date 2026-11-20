@@ -34,7 +34,7 @@ config/         URL_BACKEND, PORTAL_URL, LOCALE, ZONA_HORARIA, MONEDA
 context/        AuthProvider (usuario, estaAutenticado, cargandoSesion, cerrarSesion)
                 WorkspaceProvider (espacio personal|org:{id}, rolEnOrg, puedeAdministrar)
                 espacio.js (helpers)
-router/         AppRouter.jsx + guards.jsx (RutaPrivada, RutaPublica, RutaAdminOrg)
+router/         AppRouter.jsx (páginas con lazy + Suspense/CargandoPagina) + guards.jsx (RutaPrivada, RutaPublica, RutaAdminOrg)
 layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outlet)
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header (campana de avisos)

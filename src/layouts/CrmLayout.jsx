@@ -1,4 +1,6 @@
 // src/layouts/CrmLayout.jsx — SidebarProvider + AppSidebar + SiteHeader + Outlet
+import { Suspense } from "react";
+import { CargandoPagina } from "@/router/CargandoPagina.jsx";
 import { Outlet, useLocation } from "react-router-dom";
 import { AppSidebar } from "@/components/app-sidebar.jsx";
 import { SiteHeader } from "@/components/site-header.jsx";
@@ -41,7 +43,9 @@ export default function CrmLayout() {
       <SidebarInset className="min-w-0">
         <SiteHeader titulo={titulo} />
         <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6">
-          <Outlet />
+          <Suspense fallback={<CargandoPagina />}>
+            <Outlet />
+          </Suspense>
         </div>
       </SidebarInset>
     </SidebarProvider>

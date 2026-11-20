@@ -22,6 +22,7 @@ import TareasPage from "@/features/tareas/TareasPage.jsx";
 import AgendaPage from "@/features/agenda/AgendaPage.jsx";
 import DemandasPage from "@/features/demandas/DemandasPage.jsx";
 import CaptacionesPage from "@/features/captaciones/CaptacionesPage.jsx";
+import FichaPage from "@/features/propiedades/FichaPage.jsx";
 import PropiedadesPage from "@/features/propiedades/PropiedadesPage.jsx";
 import EquipoPage from "@/features/equipo/EquipoPage.jsx";
 import ReportesPage from "@/features/reportes/ReportesPage.jsx";
@@ -40,6 +41,15 @@ export default function AppRouter() {
           }
         />
         <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+        {/* Ficha imprimible: con sesión pero sin el layout del CRM */}
+        <Route
+          path="/propiedades/:id/ficha"
+          element={
+            <RutaPrivada>
+              <FichaPage />
+            </RutaPrivada>
+          }
+        />
         <Route
           element={
             <RutaPrivada>

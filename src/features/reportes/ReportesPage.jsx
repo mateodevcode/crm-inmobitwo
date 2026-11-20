@@ -7,6 +7,13 @@ import { MoneyText } from "@/components/comunes/MoneyText.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.jsx";
 import { Input } from "@/components/ui/input.jsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select.jsx";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart.jsx";
 import {
   Table,
@@ -17,24 +24,69 @@ import {
   TableRow,
 } from "@/components/ui/table.jsx";
 import {
-  descargarCsv,
   obtenerActividad,
   obtenerConversion,
   obtenerEmbudo,
   obtenerLeadsOrigen,
+  obtenerReporteAgentes,
+  obtenerReporteInmuebles,
+  obtenerReporteRespuesta,
   obtenerValorGanado,
 } from "@/features/reportes/api.js";
+import { obtenerMiembros } from "@/features/equipo/api.js";
+import { TablaAgentes, TablaInmuebles, TiemposRespuesta } from "@/features/reportes/components/BloquesReportes.jsx";
+import { aCsv, descargarArchivo, hoyBogota } from "@/utils/csv.js";
+
+// Rangos rápidos en días de Bogotá.
+function rangoRapido(clave) {
+  const hoy = hoyBogota();
+  const [a, m] = hoy.split("-").map(Number);
+  const dia = (d) => d.toISOString().slice(0, 10);
+  if (clave === "mes") return { desde: `${hoy.slice(0, 7)}-01`, hasta: hoy };
+  if (clave === "mes_pasado") {
+    return { desde: dia(new Date(Date.UTC(a, m - 2, 1))), hasta: dia(new Date(Date.UTC(a, m - 1, 0))) };
+  }
+  if (clave === "30d") return { desde: dia(new Date(Date.parse(`${hoy}T12:00:00Z`) - 29 * 86400000)), hasta: hoy };
+  if (clave === "anio") return { desde: `${a}-01-01`, hasta: hoy };
+  return { desde: "", hasta: "" };
+}
+const RANGOS = [
+  { clave: "mes", etiqueta: "Este mes" },
+  { clave: "mes_pasado", etiqueta: "Mes pasado" },
+  { clave: "30d", etiqueta: "Últimos 30 días" },
+  { clave: "anio", etiqueta: "Este año" },
+  { clave: "todo", etiqueta: "Todo" },
+];
 
 export default function ReportesPage() {
-  const { espacio, esAgente } = useContext(WorkspaceContext);
-  const [filtros, setFiltros] = useState({ desde: "", hasta: "", asignado: "" });
-  const [aplicados, setAplicados] = useState({ desde: "", hasta: "", asignado: "" });
+  const { espacio, esAgente, esPersonal, organizacion } = useContext(WorkspaceContext);
+  const [filtros, setFiltros] = useState(() => ({ ...rangoRapido("mes"), asignado: "" }));
+  const [aplicados, setAplicados] = useState(filtros);
 
   const embudoQ = useQuery({ queryKey: ["rep-embudo", espacio, aplicados], queryFn: () => obtenerEmbudo(aplicados) });
   const convQ = useQuery({ queryKey: ["rep-conv", espacio, aplicados], queryFn: () => obtenerConversion(aplicados) });
   const valorQ = useQuery({ queryKey: ["rep-valor", espacio, aplicados], queryFn: () => obtenerValorGanado(aplicados) });
   const actQ = useQuery({ queryKey: ["rep-act", espacio, aplicados], queryFn: () => obtenerActividad(aplicados) });
   const origenQ = useQuery({ queryKey: ["rep-origen", espacio, aplicados], queryFn: () => obtenerLeadsOrigen(aplicados) });
+  const rango = { desde: aplicados.desde, hasta: aplicados.hasta };
+  const respuestaQ = useQuery({ queryKey: ["rep-respuesta", espacio, rango], queryFn: () => obtenerReporteRespuesta(rango) });
+  const inmueblesQ = useQuery({ queryKey: ["rep-inmuebles", espacio, rango], queryFn: () => obtenerReporteInmuebles(rango) });
+  const agentesQ = useQuery({
+    queryKey: ["rep-agentes", espacio, rango],
+    queryFn: () => obtenerReporteAgentes(rango),
+    enabled: !esPersonal,
+  });
+  const miembrosQ = useQuery({
+    queryKey: ["crm-miembros", espacio],
+    queryFn: () => obtenerMiembros(organizacion.id),
+    enabled: !esPersonal && !esAgente && !!organizacion,
+    select: (ms) => ms.filter((m) => m.estado === "activo"),
+  });
+  const aplicarRango = (clave) => {
+    const nuevo = { ...filtros, ...rangoRapido(clave) };
+    setFiltros(nuevo);
+    setAplicados(nuevo);
+  };
 
   const set = (k, v) => setFiltros((f) => ({ ...f, [k]: v }));
   const conv = convQ.data ?? {};
@@ -43,16 +95,23 @@ export default function ReportesPage() {
     <>
       <PageHeader
         titulo="Reportes"
-        descripcion="Embudo, conversión, valor ganado y actividad."
+        descripcion="Embudo, conversión, tiempos de respuesta, inmuebles y equipo."
         acciones={
           <Button
             variant="outline"
-            onClick={() => {
-              descargarCsv("embudo.csv", embudoQ.data ?? [], ["nombre", "tipo", "total", "valor"]);
-              descargarCsv("actividad.csv", actQ.data ?? [], ["name", "email", "rol_en_org", "contactos", "oportunidades_abiertas", "tareas_vencidas", "actividades"]);
-            }}
+            onClick={() =>
+              descargarArchivo(
+                `embudo-${hoyBogota()}.csv`,
+                aCsv(embudoQ.data ?? [], [
+                  { clave: "nombre", titulo: "Etapa" },
+                  { clave: "tipo", titulo: "Tipo" },
+                  { clave: "total", titulo: "Oportunidades" },
+                  { clave: "valor", titulo: "Valor" },
+                ]),
+              )
+            }
           >
-            Exportar CSV
+            Exportar embudo (CSV)
           </Button>
         }
       />
@@ -63,19 +122,35 @@ export default function ReportesPage() {
           setAplicados(filtros);
         }}
       >
-        <Input type="date" value={filtros.desde} onChange={(e) => set("desde", e.target.value)} className="w-40" />
-        <Input type="date" value={filtros.hasta} onChange={(e) => set("hasta", e.target.value)} className="w-40" />
-        {!esAgente ? (
-          <Input
-            placeholder="ID agente"
-            inputMode="numeric"
-            value={filtros.asignado}
-            onChange={(e) => set("asignado", e.target.value)}
-            className="w-32"
-          />
+        <div className="flex flex-wrap gap-1" role="group" aria-label="Rangos rápidos">
+          {RANGOS.map((r) => (
+            <Button key={r.clave} type="button" size="sm" variant="ghost" onClick={() => aplicarRango(r.clave)}>
+              {r.etiqueta}
+            </Button>
+          ))}
+        </div>
+        <Input type="date" aria-label="Desde" value={filtros.desde} onChange={(e) => set("desde", e.target.value)} className="w-40" />
+        <Input type="date" aria-label="Hasta" value={filtros.hasta} min={filtros.desde || undefined} onChange={(e) => set("hasta", e.target.value)} className="w-40" />
+        {!esPersonal && !esAgente ? (
+          <Select value={filtros.asignado || "todos"} onValueChange={(v) => set("asignado", v === "todos" ? "" : v)}>
+            <SelectTrigger className="w-48" aria-label="Agente">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todo el equipo</SelectItem>
+              {(miembrosQ.data ?? []).map((m) => (
+                <SelectItem key={m.usuario_id} value={String(m.usuario_id)}>{m.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : null}
         <Button type="submit" variant="outline">Aplicar</Button>
       </form>
+      {[embudoQ, convQ, respuestaQ].find((x) => x.isError) ? (
+        <p role="alert" className="text-destructive text-sm">
+          {[embudoQ, convQ, respuestaQ].find((x) => x.isError).error.message}
+        </p>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -162,6 +237,10 @@ export default function ReportesPage() {
           </CardContent>
         </Card>
       </div>
+
+      <TiemposRespuesta datos={respuestaQ.data} cargando={respuestaQ.isLoading} />
+      <TablaInmuebles filas={inmueblesQ.data ?? []} cargando={inmueblesQ.isLoading} />
+      {!esPersonal ? <TablaAgentes filas={agentesQ.data ?? []} cargando={agentesQ.isLoading} /> : null}
     </>
   );
 }

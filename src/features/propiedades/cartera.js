@@ -1,5 +1,6 @@
 // Textos de la cartera: estado comercial de las ofertas y exportación a CSV.
 import { formatPrecioCompleto } from "@/utils/formatPrecio.js";
+import { aCsv, descargarArchivo } from "@/utils/csv.js";
 
 export const ESTADO_OFERTA = {
   active: { etiqueta: "Disponible", clase: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-100" },
@@ -23,13 +24,6 @@ export const FILTROS_OFERTA = [
   { valor: "sin_oferta", etiqueta: "Sin oferta" },
 ];
 
-const celda = (v) => {
-  const s = v == null ? "" : String(v);
-  // Comillas dobles y neutraliza fórmulas al abrir en Excel (=, +, -, @).
-  const seguro = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
-  return `"${seguro.replace(/"/g, '""')}"`;
-};
-
 export function csvCartera(filas) {
   const cabecera = ["ID", "Título", "Ciudad", "Publicación", "Ofertas", "Mandato", "Vence mandato", "Vistas", "Favoritos", "Leads", "Creado"];
   const lineas = filas.map((p) => [
@@ -47,16 +41,7 @@ export function csvCartera(filas) {
     p.leads,
     new Date(p.created_at).toLocaleDateString("es-CO", { timeZone: "America/Bogota" }),
   ]);
-  // BOM para que Excel abra bien las tildes; separador ; (configuración regional es-CO).
-  return "﻿" + [cabecera, ...lineas].map((l) => l.map(celda).join(";")).join("\r\n");
+  return aCsv(lineas, cabecera.map((titulo, i) => ({ titulo, valor: (l) => l[i] })));
 }
 
-export function descargarTexto(nombre, contenido, tipo = "text/csv;charset=utf-8") {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([contenido], { type: tipo }));
-  a.download = nombre;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-}
+export const descargarTexto = (nombre, contenido) => descargarArchivo(nombre, contenido);

@@ -140,6 +140,13 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
   en el backend (visitas realizadas, captaciones, contactos nuevos, negocios ganados y su valor).
 - `FilaMetas` se reutiliza en el panel (`TarjetaMisMetas`).
 
+## Reportes (`features/reportes/`)
+
+- Rango `desde`/`hasta` en días de Bogotá (por defecto "Este mes"; rangos rápidos en la página).
+- Nuevos: `/crm/reportes/agentes` (solo org; el agente ve su fila), `/crm/reportes/inmuebles` (top 50 por
+  vistas) y `/crm/reportes/respuesta` (primera respuesta al chat y tiempo hasta convertir leads).
+- CSV siempre con `utils/csv.js` (`aCsv` + `descargarArchivo`): BOM, `;` y protección contra fórmulas.
+
 ## Pruebas locales
 
 - `.claude/launch.json` (raíz del monorepo): `backend-crons-apagados` (puerto 3001, con

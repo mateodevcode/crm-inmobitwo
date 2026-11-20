@@ -21,14 +21,6 @@ export const obtenerValorGanado = (f) => get(`/crm/reportes/valor-ganado${params
 export const obtenerActividad = (f) => get(`/crm/reportes/actividad${paramsReporte(f)}`);
 export const obtenerLeadsOrigen = (f) => get(`/crm/reportes/leads-origen${paramsReporte(f)}`);
 
-export function descargarCsv(nombre, filas, columnas) {
-  const linea = (xs) => xs.map((x) => `"${String(x ?? "").replaceAll('"', '""')}"`).join(";");
-  const texto = [linea(columnas), ...filas.map((f) => linea(columnas.map((c) => f[c])))].join("\n");
-  const blob = new Blob(["\uFEFF" + texto], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = nombre;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+export const obtenerReporteAgentes = (f) => get(`/crm/reportes/agentes${paramsReporte(f)}`);
+export const obtenerReporteInmuebles = (f) => get(`/crm/reportes/inmuebles${paramsReporte(f)}`);
+export const obtenerReporteRespuesta = (f) => get(`/crm/reportes/respuesta${paramsReporte(f)}`);

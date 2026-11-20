@@ -39,7 +39,7 @@ layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outle
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
-features/       auth/ dashboard/ leads/ contactos/ pipeline/ agenda/ demandas/ tareas/ propiedades/ equipo/ ajustes/
+features/       auth/ dashboard/ leads/ contactos/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
 lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono, agenda.js (días/horas en Bogotá, UTC−5 fijo)
 lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerouslySetInnerHTML
@@ -48,7 +48,7 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 ## Rutas
 
 `/login` · `/` Panel · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
-`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
+`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
 
 ## Sesión y espacio
 
@@ -100,6 +100,15 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
   cartera propia y solo trae publicados. Visita desde una coincidencia: solo cartera.
 - Componentes: `DemandasPage`, `DemandaDialog`, `Coincidencias`, `TarjetaDemandas` (ficha de
   contacto), `InteresadosSheet` (tabla de propiedades). Textos en `criterios.js`.
+
+## Captación y propietarios (`features/captaciones/`)
+
+- API `/crm/captaciones` (filtros `estado`, `vence_en_dias`, `propietario_id`, `asignado`),
+  `/crm/propiedades/:id/captacion` (o `null`), documentos en `/crm/captaciones/:id/documentos[/:docId]`.
+- Una captación por inmueble; se registra desde Propiedades → "Captación" (`CaptacionSheet`).
+- Fechas `inicio_el`/`vence_el` llegan como texto `aaaa-mm-dd`; `dias_para_vencer` en días de Bogotá.
+- Documentos privados: subir con `apiBackendFormData` (campo `archivo` + `tipo`), descargar SOLO con
+  `descargarDocumento()` (fetch con token → blob). Nunca hay URL pública.
 
 ## Pruebas locales
 

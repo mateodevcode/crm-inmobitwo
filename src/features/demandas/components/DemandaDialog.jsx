@@ -54,6 +54,11 @@ const buscarContactos = async (q) => {
 const buscarCiudadesOpciones = async (q) =>
   (await buscarCiudades(q)).map((c) => ({ id: c.id, etiqueta: c.nombre, detalle: c.departamento }));
 
+// Opciones marcadas con el color primario: el gris por defecto del toggle se
+// distingue poco en una lista larga de tipos.
+const MARCADO =
+  "data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
+
 // "450000000" ↔ "450.000.000" para los campos de precio.
 const soloDigitos = (v) => String(v ?? "").replace(/\D/g, "");
 const conPuntos = (v) => (v ? Number(v).toLocaleString("es-CO") : "");
@@ -233,7 +238,7 @@ function Formulario({ demanda, contacto, onCerrar, onGuardada }) {
           aria-label="Operación"
         >
           {OPERACIONES.map((o) => (
-            <ToggleGroupItem key={o.valor} value={o.valor} className="px-4">
+            <ToggleGroupItem key={o.valor} value={o.valor} className={`px-4 ${MARCADO}`}>
               {o.etiqueta}
             </ToggleGroupItem>
           ))}
@@ -252,7 +257,7 @@ function Formulario({ demanda, contacto, onCerrar, onGuardada }) {
           aria-label="Tipos de inmueble"
         >
           {(tiposQ.data ?? []).map((t) => (
-            <ToggleGroupItem key={t.id} value={String(t.id)} className="flex-none px-3">
+            <ToggleGroupItem key={t.id} value={String(t.id)} className={`flex-none px-3 ${MARCADO}`}>
               {t.label_es}
             </ToggleGroupItem>
           ))}
@@ -382,7 +387,7 @@ function Formulario({ demanda, contacto, onCerrar, onGuardada }) {
           aria-label="Estratos"
         >
           {["1", "2", "3", "4", "5", "6"].map((e) => (
-            <ToggleGroupItem key={e} value={e} className="w-9 flex-none">
+            <ToggleGroupItem key={e} value={e} className={`w-9 flex-none ${MARCADO}`}>
               {e}
             </ToggleGroupItem>
           ))}

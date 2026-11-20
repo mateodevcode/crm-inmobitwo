@@ -19,6 +19,7 @@ const TITULOS = {
   "/reportes": "Reportes",
   "/importar": "Importar",
   "/notificaciones": "Avisos",
+  "/habeas-data": "Datos personales",
   "/ajustes": "Ajustes",
 };
 

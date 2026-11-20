@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useContext, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -52,6 +53,22 @@ export default function AjustesPage() {
   return (
     <>
       <PageHeader titulo="Ajustes" descripcion="Etapas del pipeline de su espacio." />
+      {puedeAdministrar ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Datos personales (Habeas Data)</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 text-sm">
+            <p className="text-muted-foreground max-w-2xl">
+              Registro de quién consultó, rectificó o suprimió datos de contactos y de los cambios de autorización.
+              Las solicitudes de cada titular se atienden desde su ficha de contacto.
+            </p>
+            <Button variant="outline" asChild>
+              <Link to="/habeas-data">Ver registro</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
       <Card>
         <CardHeader>
           <CardTitle>Etapas</CardTitle>

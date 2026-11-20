@@ -29,6 +29,7 @@ import EquipoPage from "@/features/equipo/EquipoPage.jsx";
 import ReportesPage from "@/features/reportes/ReportesPage.jsx";
 import ImportarPage from "@/features/importacion/ImportarPage.jsx";
 import NotificacionesPage from "@/features/notificaciones/NotificacionesPage.jsx";
+import HabeasDataPage from "@/features/habeas/HabeasDataPage.jsx";
 import AjustesPage from "@/features/ajustes/AjustesPage.jsx";
 
 export default function AppRouter() {
@@ -124,6 +125,7 @@ export default function AppRouter() {
           <Route path="reportes" element={<ReportesPage />} />
           <Route path="importar" element={<ImportarPage />} />
           <Route path="notificaciones" element={<NotificacionesPage />} />
+          <Route path="habeas-data" element={<HabeasDataPage />} />
           <Route path="ajustes" element={<AjustesPage />} />
           <Route path="mi-inmobiliaria" element={<InmobiliariaPage />} />
           <Route path="mensajes" element={<MensajesPage />} />

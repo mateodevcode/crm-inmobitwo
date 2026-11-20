@@ -28,6 +28,7 @@ import { completarTarea, crearTarea, obtenerTareas } from "@/features/tareas/api
 import { TarjetaVisitas } from "@/features/agenda/components/TarjetaVisitas.jsx";
 import { TarjetaDemandas } from "@/features/demandas/components/TarjetaDemandas.jsx";
 import { TarjetaCaptaciones } from "@/features/captaciones/components/TarjetaCaptaciones.jsx";
+import { TarjetaDatosPersonales } from "@/features/habeas/components/TarjetaDatosPersonales.jsx";
 
 const TIPOS_ACTIVIDAD = ["nota", "llamada", "email", "whatsapp", "visita", "reunion"];
 
@@ -231,6 +232,8 @@ export default function ContactoDetallePage() {
           ))}
         </CardContent>
       </Card>
+
+      <TarjetaDatosPersonales contacto={c} />
     </>
   );
 }

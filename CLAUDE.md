@@ -39,7 +39,7 @@ layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outle
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
-features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ importacion/ notificaciones/ ajustes/
+features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ importacion/ notificaciones/ habeas/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
 lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono, agenda.js (días/horas en Bogotá, UTC−5 fijo)
 lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerouslySetInnerHTML
@@ -48,7 +48,7 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 ## Rutas
 
 `/login` · `/` Panel · `/bandeja` · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
-`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin; `?tab=miembros|reparto|metas`) · `/reportes` · `/importar` (`?tipo=contactos|inmuebles`) · `/notificaciones` · `/ajustes` · `*`.
+`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin; `?tab=miembros|reparto|metas`) · `/reportes` · `/importar` (`?tipo=contactos|inmuebles`) · `/notificaciones` · `/habeas-data` (`?contacto=ID`; personal o agency_admin) · `/ajustes` · `*`.
 
 ## Sesión y espacio
 
@@ -167,6 +167,15 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
   `/contador`, `POST /:id/leida`, `POST /leer-todas`. Siempre del espacio activo (personal = sin organización).
 - Abrir un aviso lo marca leído y navega a su `url` (ruta interna). Todas las claves de query empiezan por `crm-notif`.
 - Iconos por tipo en `tipos.js` (`IconoTipo`).
+
+## Habeas Data (`features/habeas/`)
+
+- Ficha de contacto → `TarjetaDatosPersonales`: registrar/retirar autorización (`PUT /crm/contactos/:id/autorizacion
+  { autorizado, origen }`), descargar sus datos en JSON (`GET /crm/contactos/:id/datos-personales`, derecho de acceso)
+  y suprimir (`POST /crm/contactos/:id/suprimir { confirmar: true, motivo }`, solo personal o agency_admin; pide escribir
+  SUPRIMIR). Rectificar = editar el contacto (el backend audita qué campos cambiaron).
+- Registro: `GET /crm/habeas-data/registro?contacto_id=&pagina=` → página `/habeas-data` (enlace en Ajustes).
+  Sin datos personales: solo acción, actor, id del contacto y conteos (`textoDetalle` en `textos.js`).
 
 ## Pruebas locales
 

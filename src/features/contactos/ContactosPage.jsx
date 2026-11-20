@@ -110,7 +110,14 @@ export default function ContactosPage() {
       <PageHeader
         titulo="Contactos"
         descripcion="Personas y empresas con las que trabaja."
-        acciones={<Button onClick={abrirCrear}>Nuevo contacto</Button>}
+        acciones={
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/importar?tipo=contactos">Importar</Link>
+            </Button>
+            <Button onClick={abrirCrear}>Nuevo contacto</Button>
+          </>
+        }
       />
       <div className="flex flex-wrap gap-3">
         <form

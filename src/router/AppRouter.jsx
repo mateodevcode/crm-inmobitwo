@@ -27,6 +27,7 @@ import BandejaPage from "@/features/bandeja/BandejaPage.jsx";
 import PropiedadesPage from "@/features/propiedades/PropiedadesPage.jsx";
 import EquipoPage from "@/features/equipo/EquipoPage.jsx";
 import ReportesPage from "@/features/reportes/ReportesPage.jsx";
+import ImportarPage from "@/features/importacion/ImportarPage.jsx";
 import AjustesPage from "@/features/ajustes/AjustesPage.jsx";
 
 export default function AppRouter() {
@@ -120,6 +121,7 @@ export default function AppRouter() {
             }
           />
           <Route path="reportes" element={<ReportesPage />} />
+          <Route path="importar" element={<ImportarPage />} />
           <Route path="ajustes" element={<AjustesPage />} />
           <Route path="mi-inmobiliaria" element={<InmobiliariaPage />} />
           <Route path="mensajes" element={<MensajesPage />} />

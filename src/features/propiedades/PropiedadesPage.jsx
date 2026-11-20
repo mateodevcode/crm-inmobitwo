@@ -167,9 +167,14 @@ export default function PropiedadesPage() {
         titulo="Propiedades"
         descripcion="Tu cartera: estado comercial, captación y rendimiento de cada anuncio."
         acciones={
-          <Button asChild>
-            <Link to="/propiedades/nuevo">Nuevo inmueble</Link>
-          </Button>
+          <>
+            <Button variant="outline" asChild>
+              <Link to="/importar?tipo=inmuebles">Importar</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/propiedades/nuevo">Nuevo inmueble</Link>
+            </Button>
+          </>
         }
       />
       <div className="flex flex-wrap gap-3">

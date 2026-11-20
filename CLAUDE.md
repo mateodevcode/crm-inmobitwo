@@ -39,7 +39,7 @@ layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outle
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
-features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ ajustes/
+features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ importacion/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
 lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono, agenda.js (días/horas en Bogotá, UTC−5 fijo)
 lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerouslySetInnerHTML
@@ -48,7 +48,7 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 ## Rutas
 
 `/login` · `/` Panel · `/bandeja` · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
-`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin; `?tab=miembros|reparto|metas`) · `/reportes` · `/ajustes` · `*`.
+`/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin; `?tab=miembros|reparto|metas`) · `/reportes` · `/importar` (`?tipo=contactos|inmuebles`) · `/ajustes` · `*`.
 
 ## Sesión y espacio
 
@@ -146,6 +146,18 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 - Nuevos: `/crm/reportes/agentes` (solo org; el agente ve su fila), `/crm/reportes/inmuebles` (top 50 por
   vistas) y `/crm/reportes/respuesta` (primera respuesta al chat y tiempo hasta convertir leads).
 - CSV siempre con `utils/csv.js` (`aCsv` + `descargarArchivo`): BOM, `;` y protección contra fórmulas.
+
+## Importación (`features/importacion/`)
+
+- El navegador lee el archivo: `.xlsx` con `read-excel-file/browser` (import dinámico, versión fijada)
+  o CSV con `parsearCsv` (detecta `;`, `,` o tabulador). Encabezados → campos con `mapearEncabezados`
+  (sinónimos en `CAMPOS`); el usuario corrige el mapeo.
+- `POST /crm/importar/contactos { filas, modo: omitir|actualizar, autorizacion_confirmada, simular }` (máx. 500)
+  y `POST /crm/importar/inmuebles { filas, simular }` (máx. 200). Cada fila lleva `fila` (línea del archivo).
+  Respuesta `{ simulado, resumen: { creados, actualizados, omitidos, errores }, filas: [{ fila, resultado, mensaje, id }] }`.
+- Primero siempre `simular: true` (vista previa); importar exige la casilla de Habeas Data en contactos.
+- "Actualizar" solo completa datos vacíos y suma etiquetas; un agente no toca contactos de otro agente.
+- Inmuebles: borradores `no_publicado`, sin fotos; ciudad por nombre (+ departamento si hay varias).
 
 ## Pruebas locales
 

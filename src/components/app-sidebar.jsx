@@ -41,6 +41,7 @@ import {
   SearchCheckIcon,
   KeyRoundIcon,
   InboxIcon,
+  FileUpIcon,
 } from "lucide-react";
 import Logo from "./comunes/Logo";
 
@@ -56,6 +57,7 @@ const NAV_PRINCIPAL = [
   { title: "Tareas", url: "/tareas", icon: ListChecksIcon },
   { title: "Propiedades", url: "/propiedades", icon: Building2Icon },
   { title: "Reportes", url: "/reportes", icon: ChartBarIcon },
+  { title: "Importar", url: "/importar", icon: FileUpIcon },
   { title: "Ajustes", url: "/ajustes", icon: Settings2Icon },
   { title: "Mi inmobiliaria", url: "/mi-inmobiliaria", icon: BuildingIcon },
 ];

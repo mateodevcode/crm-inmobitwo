@@ -39,7 +39,7 @@ layouts/        CrmLayout.jsx (SidebarProvider + AppSidebar + SiteHeader + Outle
 components/ui/  shadcn (button, card, dialog, table, form, sonner…)
 components/     app-sidebar, nav-main, nav-user, workspace-switcher, site-header
 components/comunes/ PageHeader, EmptyState, ConfirmDialog, EnConstruccion
-features/       auth/ dashboard/ leads/ contactos/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ ajustes/
+features/       auth/ dashboard/ leads/ contactos/ bandeja/ pipeline/ agenda/ demandas/ captaciones/ tareas/ propiedades/ equipo/ ajustes/
 hooks/          useAuth.js (check-email → password → OTP; reenvío; verificación email)
 lib/utils.js    cn() · utils/ formato COP, fechas es-CO, teléfono, agenda.js (días/horas en Bogotá, UTC−5 fijo)
 lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerouslySetInnerHTML
@@ -47,7 +47,7 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 
 ## Rutas
 
-`/login` · `/` Panel · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
+`/login` · `/` Panel · `/bandeja` · `/leads` · `/contactos`, `/contactos/:id` · `/pipeline` ·
 `/agenda` (`?visita=ID` abre el detalle) · `/demandas` (`?demanda=ID`) · `/captaciones` · `/tareas` · `/propiedades` · `/equipo` (agency_admin) · `/reportes` · `/ajustes` · `*`.
 
 ## Sesión y espacio
@@ -120,6 +120,15 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
   (venta→sold, alquiler→rented). No existe "reservado".
 - Rendimiento: `GET /crm/propiedades/:id/rendimiento` (`RendimientoSheet`). Ficha imprimible:
   `/propiedades/:id/ficha` (fuera del layout). CSV en `cartera.js` (BOM, `;`, sin fórmulas).
+
+## Bandeja (`features/bandeja/`)
+
+- `GET /crm/bandeja?filtro=todos|pendientes|chat|leads&q=` → `{ items: [{ tipo: chat|lead, id, nombre, propiedad_titulo, texto, at, pendiente, contacto_id, … }], pendientes }`.
+  Chats: solo los de MIS anuncios del espacio; del interesado solo nombre e imagen (nunca correo/teléfono).
+- `POST /crm/bandeja/chat/:id/contacto` (idempotente por conversación, guarda solo el nombre).
+- Plantillas: `/crm/plantillas` (CRUD + `POST /:id/uso`), variables `{nombre}`, `{inmueble}`, `{agente}`,
+  `{inmobiliaria}` reemplazadas en el cliente con `aplicarPlantilla()` (`plantillas.js`).
+- El chat reutiliza `features/mensajes/api.js` (mensajes, enviar, marcar leída).
 
 ## Pruebas locales
 

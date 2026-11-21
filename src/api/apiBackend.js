@@ -72,12 +72,15 @@ export async function apiBackend(endpoint, metodo = "GET", datos = null) {
 }
 
 // ─────────────────────────────────────────────
+// `pagination` ({ pagina, limite, total }) lo usan todos los listados paginados;
+// antes se descartaba y el total salía en 0 (sin "Siguiente").
 function formatearRespuesta(data, status) {
   return {
     success: data.success ?? false,
     message: data.message ?? null,
     data: data.data ?? null,
     error: data.error ?? null,
+    pagination: data.pagination ?? null,
     status,
   };
 }

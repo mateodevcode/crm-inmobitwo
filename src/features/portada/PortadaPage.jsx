@@ -6,7 +6,9 @@ import { EmptyState } from "@/components/comunes/EmptyState.jsx";
 import { MoneyText } from "@/components/comunes/MoneyText.jsx";
 import { Button } from "@/components/ui/button.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.jsx";
+import { Checkbox } from "@/components/ui/checkbox.jsx";
 import { Input } from "@/components/ui/input.jsx";
+import { Label } from "@/components/ui/label.jsx";
 import { PORTAL_URL } from "@/config/config.js";
 import {
   buscarAnuncios,
@@ -35,14 +37,16 @@ export default function PortadaPage() {
   const [q, setQ] = useState("");
   const [aplicada, setAplicada] = useState("");
   const [pagina, setPagina] = useState(1);
+  // Sin fotos no se puede poner en portada: por defecto solo se listan los que tienen.
+  const [conFotos, setConFotos] = useState(true);
   const [anuncioId, setAnuncioId] = useState(null);
   const [imagen, setImagen] = useState(null);
 
   const actualQ = useQuery({ queryKey: ["portada-actual"], queryFn: obtenerPortada });
 
   const busquedaQ = useQuery({
-    queryKey: ["portada-buscar", aplicada, pagina],
-    queryFn: () => buscarAnuncios({ q: aplicada, pagina, limite: LIMITE }),
+    queryKey: ["portada-buscar", aplicada, pagina, conFotos],
+    queryFn: () => buscarAnuncios({ q: aplicada, pagina, limite: LIMITE, conFotos }),
   });
 
   const detalleQ = useQuery({
@@ -126,12 +130,28 @@ export default function PortadaPage() {
           className="max-w-sm"
         />
         <Button type="submit">Buscar</Button>
+        <div className="ml-2 flex items-center gap-2">
+          <Checkbox
+            id="solo-con-fotos"
+            checked={conFotos}
+            onCheckedChange={(v) => {
+              setConFotos(!!v);
+              setPagina(1);
+            }}
+          />
+          <Label htmlFor="solo-con-fotos" className="font-normal">
+            Solo con fotos
+          </Label>
+        </div>
       </form>
 
       {busquedaQ.isLoading ? (
         <p className="text-muted-foreground text-sm">Buscando…</p>
       ) : resultados.length === 0 ? (
-        <EmptyState titulo="Sin resultados" descripcion="Ajuste la búsqueda." />
+        <EmptyState
+          titulo="Sin resultados"
+          descripcion={conFotos ? "Ningún anuncio con fotos coincide. Desmarca «Solo con fotos» para ver todos." : "Ajusta la búsqueda."}
+        />
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -147,16 +167,21 @@ export default function PortadaPage() {
                     className="h-40 w-full rounded object-cover"
                   />
                   <p className="font-medium">{a.titulo ?? `Anuncio ${a.id}`}</p>
-                  <p className="text-muted-foreground text-xs">ID {a.id}</p>
+                  <p className="text-muted-foreground text-xs">
+                    ID {a.id}
+                    {a.fotos != null ? ` · ${a.fotos === 0 ? "Sin fotos" : `${a.fotos} ${a.fotos === 1 ? "foto" : "fotos"}`}` : ""}
+                  </p>
                   <p className="text-muted-foreground text-sm">
                     {a.ciudad ?? "—"} · <MoneyText valor={a.precio} /> · {a.estado}
                   </p>
                   <Button
                     size="sm"
                     variant={anuncioId === a.id ? "default" : "outline"}
+                    disabled={a.fotos === 0}
+                    title={a.fotos === 0 ? "Sube fotos al anuncio para poder ponerlo en portada" : undefined}
                     onClick={() => elegir(a)}
                   >
-                    {anuncioId === a.id ? "Seleccionado" : "Elegir"}
+                    {a.fotos === 0 ? "Sin fotos" : anuncioId === a.id ? "Seleccionado" : "Elegir"}
                   </Button>
                 </CardContent>
               </Card>
@@ -216,7 +241,7 @@ export default function PortadaPage() {
                   </Button>
                   {!imagen ? (
                     <p className="text-muted-foreground mt-2 text-sm">
-                      Elija una imagen para activar el botón.
+                      Elige una imagen para activar el botón.
                     </p>
                   ) : null}
                 </div>

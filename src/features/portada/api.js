@@ -6,12 +6,13 @@ export async function obtenerPortada() {
   return res.data;
 }
 
-export async function buscarAnuncios({ q, pagina, limite }) {
+export async function buscarAnuncios({ q, pagina, limite, conFotos }) {
   const params = new URLSearchParams({
     pagina: String(pagina),
     limite: String(limite),
   });
   if (q) params.set("q", q);
+  if (conFotos) params.set("con_fotos", "1");
   const res = await apiBackend(`/portada/buscar?${params.toString()}`);
   if (!res.success) throw new Error(res.error || "No se pudieron buscar anuncios.");
   return res;

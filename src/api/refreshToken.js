@@ -1,4 +1,5 @@
 import { URL_BACKEND } from "@/config/config.js";
+import { guardarToken } from "@/api/sesion.js";
 
 let promesaEnCurso = null;
 
@@ -11,7 +12,7 @@ async function renovarToken() {
     if (!res.ok) return false;
     const data = await res.json();
     if (data.success && data.data?.accessToken) {
-      localStorage.setItem("access_token", data.data.accessToken);
+      guardarToken(data.data.accessToken);
       return true;
     }
     return false;

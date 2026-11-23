@@ -1,7 +1,8 @@
 // src/api/apiBackendFormData.js — cliente multipart del CRM
 import { URL_BACKEND } from "@/config/config.js";
 import { obtenerTokenFresco } from "@/api/refreshToken.js";
-import { CLAVE_ESPACIO, obtenerEspacio } from "@/api/apiBackend.js";
+import { obtenerEspacio } from "@/api/apiBackend.js";
+import { borrarSesionLocal, obtenerToken } from "@/api/sesion.js";
 
 function construirHeaders(token) {
   return {
@@ -11,9 +12,7 @@ function construirHeaders(token) {
 }
 
 function redirigirLogin() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("usuario");
-  localStorage.removeItem(CLAVE_ESPACIO);
+  borrarSesionLocal();
   const origen = encodeURIComponent(
     window.location.pathname + window.location.search,
   );
@@ -23,7 +22,7 @@ function redirigirLogin() {
 export async function apiBackendFormData(endpoint, formData, method = "POST") {
   try {
     const url = `${URL_BACKEND}${endpoint}`;
-    const token = localStorage.getItem("access_token");
+    const token = obtenerToken();
 
     const res = await fetch(url, {
       method,
@@ -35,7 +34,7 @@ export async function apiBackendFormData(endpoint, formData, method = "POST") {
     if (res.status === 401 && token) {
       const renovado = await obtenerTokenFresco();
       if (renovado) {
-        const nuevoToken = localStorage.getItem("access_token");
+        const nuevoToken = obtenerToken();
         const reintento = await fetch(url, {
           method,
           headers: construirHeaders(nuevoToken),

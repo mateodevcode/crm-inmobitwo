@@ -1,31 +1,23 @@
 // src/context/AuthProvider.jsx — sesión del CRM
-// Claves localStorage: access_token, usuario (igual que el portal).
+// El token y el usuario viven solo en memoria (api/sesion.js, auditoría N-12/N-13).
+// Al cargar la página la sesión se recupera con la cookie httpOnly del refresh.
 import { useCallback, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext.js";
-import { apiBackend, CLAVE_ESPACIO } from "@/api/apiBackend.js";
+import { apiBackend } from "@/api/apiBackend.js";
 import { obtenerTokenFresco } from "@/api/refreshToken.js";
+import { borrarSesionLocal, guardarToken, limpiarClavesAntiguas, obtenerToken } from "@/api/sesion.js";
 
 export function AuthProvider({ children }) {
-  const [usuario, setUsuario] = useState(() => {
-    try {
-      const guardado = localStorage.getItem("usuario");
-      return guardado ? JSON.parse(guardado) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [usuario, setUsuario] = useState(null);
   const [cargandoSesion, setCargandoSesion] = useState(true);
 
   const guardarSesion = useCallback((usuarioData, accessToken) => {
-    localStorage.setItem("usuario", JSON.stringify(usuarioData));
-    localStorage.setItem("access_token", accessToken);
+    guardarToken(accessToken);
     setUsuario(usuarioData);
   }, []);
 
   const limpiarSesion = useCallback(() => {
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("access_token");
-    localStorage.removeItem(CLAVE_ESPACIO);
+    borrarSesionLocal();
     setUsuario(null);
   }, []);
 
@@ -37,13 +29,13 @@ export function AuthProvider({ children }) {
     }
   }, [limpiarSesion]);
 
-  // Al arrancar: usa el access_token; si no hay, intenta el refresh por cookie.
+  // Al arrancar: sin token en memoria (recarga o pestaña nueva) → refresh por cookie.
   useEffect(() => {
     let vivo = true;
+    limpiarClavesAntiguas();
     (async () => {
       try {
-        let token = localStorage.getItem("access_token");
-        if (!token) {
+        if (!obtenerToken()) {
           const renovado = await obtenerTokenFresco();
           if (!renovado) {
             if (vivo) {
@@ -52,12 +44,10 @@ export function AuthProvider({ children }) {
             }
             return;
           }
-          token = localStorage.getItem("access_token");
         }
         const res = await apiBackend("/auth/me");
         if (!vivo) return;
         if (res.success && res.data) {
-          localStorage.setItem("usuario", JSON.stringify(res.data));
           setUsuario(res.data);
         } else {
           limpiarSesion();

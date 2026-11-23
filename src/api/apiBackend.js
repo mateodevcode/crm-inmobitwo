@@ -2,8 +2,9 @@
 // Espacio de trabajo via header X-Crm-Espacio (personal | org:{id}).
 import { URL_BACKEND } from "@/config/config.js";
 import { obtenerTokenFresco } from "@/api/refreshToken.js";
+import { borrarSesionLocal, CLAVE_ESPACIO, obtenerToken } from "@/api/sesion.js";
 
-export const CLAVE_ESPACIO = "crm_espacio";
+export { CLAVE_ESPACIO };
 
 export function obtenerEspacio() {
   return localStorage.getItem(CLAVE_ESPACIO) || "personal";
@@ -18,9 +19,7 @@ function construirHeaders(token) {
 }
 
 function redirigirLogin() {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("usuario");
-  localStorage.removeItem(CLAVE_ESPACIO);
+  borrarSesionLocal();
   const origen = encodeURIComponent(
     window.location.pathname + window.location.search,
   );
@@ -30,7 +29,7 @@ function redirigirLogin() {
 export async function apiBackend(endpoint, metodo = "GET", datos = null) {
   try {
     const url = `${URL_BACKEND}${endpoint}`;
-    const token = localStorage.getItem("access_token");
+    const token = obtenerToken();
 
     const res = await fetch(url, {
       method: metodo,
@@ -43,7 +42,7 @@ export async function apiBackend(endpoint, metodo = "GET", datos = null) {
     if (res.status === 401 && token) {
       const renovado = await obtenerTokenFresco();
       if (renovado) {
-        const nuevoToken = localStorage.getItem("access_token");
+        const nuevoToken = obtenerToken();
         const reintento = await fetch(url, {
           method: metodo,
           headers: construirHeaders(nuevoToken),

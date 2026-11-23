@@ -1,6 +1,7 @@
 import { apiBackend, obtenerEspacio } from "@/api/apiBackend.js";
 import { apiBackendFormData } from "@/api/apiBackendFormData.js";
 import { obtenerTokenFresco } from "@/api/refreshToken.js";
+import { obtenerToken } from "@/api/sesion.js";
 import { URL_BACKEND } from "@/config/config.js";
 
 const mensaje = (res, porDefecto) =>
@@ -51,7 +52,7 @@ export async function descargarDocumento(id, doc) {
       credentials: "include",
       headers: {
         "X-Crm-Espacio": obtenerEspacio(),
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        Authorization: `Bearer ${obtenerToken()}`,
       },
     });
   let res = await pedirBlob();

@@ -52,8 +52,10 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 
 ## Sesión y espacio
 
-- `localStorage`: `access_token`, `usuario`, `crm_espacio`.
-- Sin access → `POST /auth/refresh` (cookie httpOnly) → `GET /auth/me`.
+- Token de acceso y usuario SOLO en memoria (`api/sesion.js`: `obtenerToken`, `guardarToken`, `borrarSesionLocal`);
+  nunca en `localStorage` (auditoría N-12/N-13). En `localStorage` solo queda `crm_espacio`.
+- Al cargar (o pestaña nueva) → `POST /auth/refresh` (cookie httpOnly) → `GET /auth/me`. Las claves antiguas
+  `access_token`/`usuario` se borran al arrancar (`limpiarClavesAntiguas`).
 - Login: `POST /auth/check-email` → `POST /auth/login` → (OTP `POST /auth/verificar-otp-login`)
   o sesión directa. Email no verificado: `POST /usuarios/:id/enviar-codigo|confirmar-codigo`.
 - Registro y recovery viven en el portal (`VITE_PORTAL_URL`).

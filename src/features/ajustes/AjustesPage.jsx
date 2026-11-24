@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button.jsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card.jsx";
 import { Input } from "@/components/ui/input.jsx";
 import { ConfirmDialog } from "@/components/comunes/ConfirmDialog.jsx";
+import { PreferenciasAvisos } from "@/features/notificaciones/components/PreferenciasAvisos.jsx";
 import {
   actualizarEtapa,
   crearEtapa,
@@ -52,7 +53,8 @@ export default function AjustesPage() {
 
   return (
     <>
-      <PageHeader titulo="Ajustes" descripcion="Etapas del pipeline de su espacio." />
+      <PageHeader titulo="Ajustes" descripcion="Avisos por correo y etapas del pipeline de su espacio." />
+      <PreferenciasAvisos />
       {puedeAdministrar ? (
         <Card>
           <CardHeader>

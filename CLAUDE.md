@@ -169,6 +169,8 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
   `/contador`, `POST /:id/leida`, `POST /leer-todas`. Siempre del espacio activo (personal = sin organización).
 - Abrir un aviso lo marca leído y navega a su `url` (ruta interna). Todas las claves de query empiezan por `crm-notif`.
 - Iconos por tipo en `tipos.js` (`IconoTipo`).
+- Correo: `PreferenciasAvisos` (en Ajustes) lee y guarda `GET|PUT /crm/notificaciones/preferencias { correo }`. Es por usuario,
+  no por espacio. El backend manda cada 5 min un resumen con los avisos sin leer (salvo leads nuevos y coincidencias).
 
 ## Habeas Data (`features/habeas/`)
 

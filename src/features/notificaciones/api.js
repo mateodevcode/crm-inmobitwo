@@ -28,3 +28,16 @@ export async function marcarTodasLeidas() {
   if (!res.success) throw fallo(res, "No se pudieron marcar los avisos.");
   return res.data;
 }
+
+// Preferencias por usuario (no por espacio): { correo }.
+export async function obtenerPreferenciasAvisos() {
+  const res = await apiBackend("/crm/notificaciones/preferencias");
+  if (!res.success) throw fallo(res, "No se pudieron cargar las preferencias.");
+  return res.data;
+}
+
+export async function guardarPreferenciasAvisos(datos) {
+  const res = await apiBackend("/crm/notificaciones/preferencias", "PUT", datos);
+  if (!res.success) throw fallo(res, "No se pudieron guardar las preferencias.");
+  return res.data;
+}

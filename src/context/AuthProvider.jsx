@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AuthContext } from "@/context/AuthContext.js";
 import { apiBackend } from "@/api/apiBackend.js";
 import { obtenerTokenFresco } from "@/api/refreshToken.js";
+import { desactivarPush } from "@/features/notificaciones/push.js";
 import { borrarSesionLocal, guardarToken, limpiarClavesAntiguas, obtenerToken } from "@/api/sesion.js";
 
 export function AuthProvider({ children }) {
@@ -23,6 +24,8 @@ export function AuthProvider({ children }) {
 
   const cerrarSesion = useCallback(async () => {
     try {
+      // Un computador compartido no debe seguir recibiendo los avisos de esta cuenta.
+      await desactivarPush().catch(() => {});
       await apiBackend("/auth/logout", "POST");
     } finally {
       limpiarSesion();

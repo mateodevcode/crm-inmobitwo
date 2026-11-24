@@ -171,6 +171,10 @@ lib/sanitizarHtml.js  DOMPurify con lista blanca: único camino para dangerously
 - Iconos por tipo en `tipos.js` (`IconoTipo`).
 - Correo: `PreferenciasAvisos` (en Ajustes) lee y guarda `GET|PUT /crm/notificaciones/preferencias { correo }`. Es por usuario,
   no por espacio. El backend manda cada 5 min un resumen con los avisos sin leer (salvo leads nuevos y coincidencias).
+- Push del navegador: `features/notificaciones/push.js` (`estadoPush`, `activarPush`, `desactivarPush`) + service worker
+  `public/sw-avisos.js` (solo muestra la notificación y abre la ruta interna; no cachea). Se activa por navegador desde
+  Ajustes (`NotificacionesNavegador`); la clave VAPID pública sale de `GET /crm/push/clave-publica` (503 = apagado).
+  Cerrar sesión da de baja la suscripción de ese navegador.
 
 ## Habeas Data (`features/habeas/`)
 
